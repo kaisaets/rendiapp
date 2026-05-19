@@ -25,26 +25,37 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Käivitamine Dockeriga
 
-When you're ready, run:
+Lihtsaim viis projekti käivitamiseks ilma Node.js lokaalselt installimata.
+
+1. Klooni repo
+
+   ```bash
+   git clone <repo-url>
+   cd rendiapp
+   ```
+
+2. Ehita ja käivita konteiner
+
+   ```bash
+   docker compose up --build
+   ```
+
+   Edaspidistel käivitamistel piisab:
+
+   ```bash
+   docker compose up
+   ```
+
+3. Skanni terminalis kuvatav QR-kood **Expo Go** äpiga (telefon peab olema samas WiFi-võrgus)
+
+Konteineri peatamiseks:
 
 ```bash
-npm run reset-project
+docker compose down
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+> **Märkus:** `--host lan` režiim nõuab, et telefon ja arvuti oleksid samas võrgus. Kui QR-kood ei tööta, proovi muuta `dockerfile.dev` failis `--host lan` → `--tunnel` (nõuab Expo kontot).
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
