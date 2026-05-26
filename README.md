@@ -1,50 +1,68 @@
-# Welcome to your Expo app 👋
+# RendiApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Mobiilirakendus hobuste suuliste rentimiseks/proovimiseks. Projekt on tehtud Expo + React Native + Expo Routeriga.
 
-## Get started
+## Tehnoloogiad
 
-1. Install dependencies
+- Expo SDK 54
+- React Native 0.81
+- TypeScript
+- Expo Router (failipõhine navigeerimine)
 
-   ```bash
-   npm install
-   ```
+## Eeldused
 
-2. Start the app
+Enne käivitamist veendu, et masinas on:
 
-   ```bash
-   npx expo start
-   ```
+- Node.js
+- npm
+- Expo Go rakendus telefonis
 
-In the output, you'll find options to open the app in a
+Soovi korral:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Android Studio emulaatori jaoks
+- Xcode (macOS) iOS simulaatori jaoks
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Kuidas tööle panna
 
-## Get a fresh project
-
-When you're ready, run:
+1. Paigalda sõltuvused:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Käivita arendusserver:
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Ava rakendus:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Terminalis vajuta a Androidi jaoks
+- Terminalis vajuta i iOS simulaatori jaoks (ainult macOS)
+- Terminalis vajuta w veebi jaoks
+- Või skänni QR-kood Expo Go äpiga
 
-## Join the community
+## Kasulikud skriptid
 
-Join our community of developers creating universal apps.
+```bash
+npm run start
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Projekti struktuur (lühidalt)
+
+- app: route-id ja ekraanid
+- app/index.tsx: avaleht
+- app/pages/[id].tsx: toote dummy detail-leht
+- src/components/home: avalehe komponendid (HeroBanner, ProductCard jne)
+- src/components/home/homeData.ts: demo andmed
+
+## Praegune kasutusvoog
+
+1. Avalehel kuvatakse toodete kaardid.
+2. Uuri lähemalt nupp viib detail-lehele.
+3. Detail-lehel on nupp tagasi avalehele.
