@@ -36,7 +36,15 @@ Lihtsaim viis projekti käivitamiseks ilma Node.js lokaalselt installimata.
    cd rendiapp
    ```
 
-2. Ehita ja käivita konteiner
+2. Loo Dockeri keskkonnamuutujad
+
+   Kopeeri näidisfail:
+
+   ```bash
+   cp .env.docker.example .env
+   ```
+
+3. Ehita ja käivita konteinerid
 
    ```bash
    docker compose up --build
@@ -48,7 +56,13 @@ Lihtsaim viis projekti käivitamiseks ilma Node.js lokaalselt installimata.
    docker compose up
    ```
 
-3. Skanni terminalis kuvatav QR-kood **Expo Go** äpiga (telefon peab olema samas WiFi-võrgus)
+4. Skanni terminalis kuvatav QR-kood **Expo Go** äpiga (telefon peab olema samas WiFi-võrgus)
+
+MySQL tuleb nüüd samuti kaasa sama käsuga.
+
+- MySQL host Docker võrgus: mysql
+- MySQL port: 3306
+- DB nimi/kasutaja/parool: loetakse .env failist
 
 Konteineri peatamiseks:
 
@@ -56,6 +70,10 @@ Konteineri peatamiseks:
 docker compose down
 ```
 
-> **Märkus:** `--host lan` režiim nõuab, et telefon ja arvuti oleksid samas võrgus. Kui QR-kood ei tööta, proovi muuta `dockerfile.dev` failis `--host lan` → `--tunnel` (nõuab Expo kontot).
+Andmebaasi andmete nullimiseks:
+
+```bash
+docker compose down -v
+```
 
 ---

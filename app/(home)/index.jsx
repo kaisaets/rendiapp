@@ -1,10 +1,6 @@
-import { useAuth, useUser } from "@clerk/expo";
 import { useCallback, useEffect, useState } from "react";
-import { Kasutaja } from "../../model/KasutajaModel";
-import { Suuline } from "../../model/SuulineModel";
 import {
   Alert,
-  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -14,9 +10,6 @@ import {
 import styles from "../styles/indexStyles";
 
 export default function Index() {
-  const { signOut } = useAuth();
-  const { user } = useUser();
-
   const [suulised, setSuulised] = useState([]);
   const [kasutajad, setKasutajad] = useState([]);
 
@@ -36,36 +29,14 @@ export default function Index() {
   const [kasutajaTelefon, setKasutajaTelefon] = useState("");
 
   const laadiAndmed = useCallback(async () => {
-    try {
-      setSuulised(await Suuline.findAll());
-      setKasutajad(await Kasutaja.findAll());
-      setViga(null);
-    } catch {
-      setViga("Andmete laadimine ebaõnnestus.");
-    }
+    setViga(
+      "SQLite eemaldatud. Ühenda järgmises etapis backend API MySQL-iga.",
+    );
   }, []);
 
   useEffect(() => {
-    if (Platform.OS !== "web") {
-      laadiAndmed();
-    }
+    laadiAndmed();
   }, [laadiAndmed]);
-
-  if (Platform.OS === "web") {
-    return (
-      <View style={styles.webHoiatus}>
-        <Text style={styles.webHoiatusIkoon}>📱</Text>
-        <Text style={styles.webHoiatusPealkiri}>
-          Andmebaas pole veebis saadaval
-        </Text>
-        <Text style={styles.webHoiatusTekst}>
-          SQLite töötab ainult mobiilseadmetes.{"\n"}
-          Käivita rakendus Android või iOS platvormil.
-        </Text>
-        <Text style={styles.webHoiatusKood}>npx expo start --android</Text>
-      </View>
-    );
-  }
 
   async function lisaUusSuuline() {
     if (!nimi.trim()) {
@@ -78,16 +49,10 @@ export default function Index() {
       return;
     }
     try {
-      await Suuline.create({
-        nimi: nimi.trim(),
-        material: material.trim() || null,
-        suurus: suurus.trim() || null,
-        hind_paev: hindArv,
-        kogus_laos: kogus ? parseInt(kogus, 10) : 1,
-        kirjeldus: kirjeldus.trim() || null,
-        staatus: "Saadaval",
-        tuup: tuup,
-      });
+      Alert.alert(
+        "Info",
+        "SQLite on eemaldatud. Lisa backend API endpoint suulise loomiseks.",
+      );
       setNimi("");
       setMaterial("");
       setSuurus("");
@@ -95,7 +60,6 @@ export default function Index() {
       setKogus("1");
       setKirjeldus("");
       setTuup(null);
-      await laadiAndmed();
     } catch {
       Alert.alert("Viga", "Suulise lisamine ebaõnnestus.");
     }
@@ -107,17 +71,13 @@ export default function Index() {
       return;
     }
     try {
-      await Kasutaja.create({
-        google_id: null,
-        email: kasutajaEmail.trim(),
-        nimi: kasutajaNimi.trim() || null,
-        telefon: kasutajaTelefon.trim() || null,
-        roll: "kasutaja",
-      });
+      Alert.alert(
+        "Info",
+        "SQLite on eemaldatud. Lisa backend API endpoint kasutaja loomiseks.",
+      );
       setKasutajaEmail("");
       setKasutajaNimi("");
       setKasutajaTelefon("");
-      await laadiAndmed();
     } catch {
       Alert.alert("Viga", "Kasutaja lisamine ebaõnnestus.");
     }
@@ -130,8 +90,10 @@ export default function Index() {
         text: "Kustuta",
         style: "destructive",
         onPress: async () => {
-          await Suuline.destroy(id);
-          await laadiAndmed();
+          Alert.alert(
+            "Info",
+            "SQLite on eemaldatud. Lisa backend API endpoint suulise kustutamiseks.",
+          );
         },
       },
     ]);
@@ -144,8 +106,10 @@ export default function Index() {
         text: "Kustuta",
         style: "destructive",
         onPress: async () => {
-          await Kasutaja.destroy(id);
-          await laadiAndmed();
+          Alert.alert(
+            "Info",
+            "SQLite on eemaldatud. Lisa backend API endpoint kasutaja kustutamiseks.",
+          );
         },
       },
     ]);
@@ -155,16 +119,6 @@ export default function Index() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.pealkiri}>Andmebaasi test</Text>
-        <View style={styles.headerRight}>
-          {user?.primaryEmailAddress && (
-            <Text style={styles.kasutajaEmailTekst}>
-              {user.primaryEmailAddress.emailAddress}
-            </Text>
-          )}
-          <TouchableOpacity style={styles.logoutNupp} onPress={() => signOut()}>
-            <Text style={styles.logoutNuppTekst}>Logi välja</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       {viga && (
