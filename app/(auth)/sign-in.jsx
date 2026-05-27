@@ -3,12 +3,13 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import {
+  ImageBackground,
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
+import GoogleSignInButton from "../../src/components/GoogleSignInButton";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -43,55 +44,71 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tere tulemast!</Text>
-      <Text style={styles.subtitle}>Logi sisse, et jätkata</Text>
+    <ImageBackground
+      source={require("../../assets/images/Hero.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay} />
+      <View style={styles.container}>
+        <View style={styles.contentCard}>
+          <Text style={styles.title}>Tere tulemast!</Text>
+          <Text style={styles.subtitle}>Logi sisse, et jätkata</Text>
 
-      <TouchableOpacity
-        style={styles.googleButton}
-        onPress={handleGoogleSignIn}
-      >
-        <Text style={styles.googleButtonText}>🔑 Logi sisse Google'iga</Text>
-      </TouchableOpacity>
+          <GoogleSignInButton onPress={handleGoogleSignIn} />
 
-      {viga && <Text style={styles.veaTekst}>{viga}</Text>}
-    </View>
+          {viga && <Text style={styles.veaTekst}>{viga}</Text>}
+        </View>
+        <Text style={styles.clerkInfo}>Kasutab Clerk logimisteenust.</Text>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.35)",
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
     padding: 24,
-    backgroundColor: "#fff",
+    bottom: 40,
+  },
+  contentCard: {
+    width: "100%",
+    maxWidth: 420,
+    borderRadius: 4,
+    padding: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: "bold",
     marginBottom: 8,
+    color: "#f5f5f5",
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 40,
-  },
-  googleButton: {
-    backgroundColor: "#4285F4",
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-  },
-  googleButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: "#b5b5b5",
+    marginBottom: 20,
+    textAlign: "center",
   },
   veaTekst: {
     color: "#c62828",
     fontSize: 14,
     marginTop: 16,
+    textAlign: "center",
+  },
+  clerkInfo: {
+    marginTop: 12,
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.9)",
     textAlign: "center",
   },
 });

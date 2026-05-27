@@ -3,5 +3,17 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  "cSpell.words": [
+    "ebaõnnestus",
+    "jätkata",
+    "Logi",
+    "Proovi",
+    "sisse",
+    "Sisselogimine",
+    "Tekst",
+    "Tere",
+    "tulemast",
+    "uuesti"
+  ]
 }
