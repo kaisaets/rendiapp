@@ -14,6 +14,11 @@ module.exports = {
         allowNull: true,
         unique: true,
       },
+      clerk_id: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+        unique: true,
+      },
       email: {
         type: Sequelize.STRING(100),
         allowNull: false,
