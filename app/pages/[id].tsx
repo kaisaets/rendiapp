@@ -18,6 +18,7 @@ export default function ProductDetailPage() {
           <Pressable style={styles.backButton} onPress={() => router.push("/")}>
             <Text style={styles.backButtonText}>Tagasi avalehele</Text>
           </Pressable>
+        
         </View>
       </SafeAreaView>
     );
@@ -53,6 +54,12 @@ export default function ProductDetailPage() {
 
         <Pressable style={styles.backButton} onPress={() => router.push("/")}>
           <Text style={styles.backButtonText}>Tagasi avalehele</Text>
+        </Pressable>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push("/pages/order")}
+        >
+          <Text style={styles.backButtonText}>Vaata tellimust</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
