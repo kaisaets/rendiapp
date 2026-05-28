@@ -1,48 +1,53 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface NavbarProps {
   activeTab: string;
-  setActiveTab: (tab: string) => void;
 }
 
 const TABS = [
   {
-    id: "home",
+    id: "Avaleht",
     label: "Avaleht",
     iconActive: "home",
     iconInactive: "home-outline",
+    route: "/pages/admin/admin_home",
   },
   {
-    id: "search",
-    label: "Otsi",
-    iconActive: "magnify",
-    iconInactive: "magnify",
+    id: "warehouse",
+    label: "Ladu",
+    iconActive: "dropbox",
+    iconInactive: "dropbox",
+    route: "/pages/admin/warehouse",
   },
   {
-    id: "rentals",
-    label: "Minu Rendid",
+    id: "Tellimused",
+    label: "Tellimused",
     iconActive: "package-variant",
     iconInactive: "package-variant-closed",
+    route: "/pages/admin/admin_home",
   },
   {
-    id: "profile",
-    label: "Profiil",
+    id: "Kliendid",
+    label: "Kliendid",
     iconActive: "account",
     iconInactive: "account-outline",
+    route: "/pages/admin/admin_home",
   },
 ];
 
-export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
+export default function Navbar({ activeTab }: NavbarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 10 }]}>
@@ -52,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           <TouchableOpacity
             key={tab.id}
             style={styles.tabButton}
-            onPress={() => setActiveTab(tab.id)}
+            onPress={() => router.push(tab.route as any)}
             activeOpacity={0.8}
           >
             <MaterialCommunityIcons

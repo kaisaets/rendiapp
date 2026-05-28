@@ -8,13 +8,7 @@ export function HeroBanner() {
         source={require("@/assets/images/Hero.png")}
         resizeMode="cover"
         style={styles.image}
-      >
-        {/* <View style={styles.overlay}>
-          <Text style={styles.brandTop}>INNOVATIVE</Text>
-          <Text style={styles.brandMain}>HORSE CARE</Text>
-          <Text style={styles.brandSub}>RENDI | PROOVI | OTSUSTA</Text>
-        </View> */}
-      </ImageBackground>
+      ></ImageBackground>
     </View>
   );
 }
@@ -31,6 +25,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
+    height: "100%",
   },
   overlay: {
     paddingHorizontal: 16,
