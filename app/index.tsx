@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   ScrollView,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import Navbar from "@/src/components/Navbar";
 import { BottomTabs } from "@/src/components/home/BottomTabs";
 import { HeroBanner } from "@/src/components/home/HeroBanner";
 import { ProductCard } from "@/src/components/home/ProductCard";
@@ -17,6 +18,7 @@ import { StepsSection } from "@/src/components/home/StepsSection";
 import { featureSteps, products } from "@/src/components/home/homeData";
 
 export default function Index() {
+  const [activeTab, setActiveTab] = useState("home");
   const fadeIn = useRef(new Animated.Value(0)).current;
   const riseUp = useRef(new Animated.Value(18)).current;
 
@@ -69,6 +71,7 @@ export default function Index() {
           </View>
         </Animated.View>
       </ScrollView>
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
     </SafeAreaView>
   );
 }
@@ -83,7 +86,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: 8,
-    paddingBottom: 26,
+    paddingBottom: 90,
   },
   mainContent: {
     paddingHorizontal: 12,
