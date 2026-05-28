@@ -50,9 +50,22 @@ function SectionRow({
 
 export default function Order({ onBack }: AddProductHeaderProps) {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, duration, rentPrice, size } = useLocalSearchParams<{
+    id?: string;
+    duration?: string;
+    rentPrice?: string;
+    size?: string;
+  }>();
 
   const product: Product | undefined = products.find((item) => item.id === id);
+  const productTitle = product?.title ?? "";
+  const rentPeriod = duration ?? "";
+  const rentValue = rentPrice ? `€${Number(rentPrice).toFixed(2)}` : "";
+  const sizeChoice = size ?? "";
+  const transportValue = 3;
+  const totalValue = rentPrice
+    ? `€${(Number(rentPrice) + transportValue).toFixed(2)}`
+    : "";
   // static layout — no params required
   const [fontsLoaded] = useFonts({
     Quicksand_400Regular,
@@ -80,7 +93,7 @@ export default function Order({ onBack }: AddProductHeaderProps) {
               if (typeof onBack === "function") {
                 onBack();
               } else if (id) {
-                router.push({ pathname: "/pages/[id]", params: { id } });
+                router.push({ pathname: "/product/[id]", params: { id } });
               } else {
                 router.back();
               }
@@ -97,17 +110,20 @@ export default function Order({ onBack }: AddProductHeaderProps) {
 
         <View style={styles.innerContent}>
           <View style={styles.card}>
-            <SectionTitle title={product?.title ?? "HUGO liikuva rõngaga"} />
-            <SectionRow label="Rendihind" value="70 €" />
+            <SectionTitle title={productTitle} />
+            <Text style={styles.productSubtitle}>
+              {sizeChoice && `Suurus: ${sizeChoice}`}
+            </Text>
+            <SectionRow label="Rendihind" value={rentValue} />
 
             <SectionTitle title="Rendiperiood" />
-            <SectionRow label="Rendiperiood" value="2 nädalat" />
+            <SectionRow label="Rendiperiood" value={rentPeriod} />
 
             <SectionRow label="Transport" value="€3" />
             <View style={styles.divider} />
             <SectionRow
               label="Kokku"
-              value="€73"
+              value={totalValue}
               valueStyle={styles.totalValue}
             />
           </View>
@@ -213,6 +229,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     marginBottom: 10,
+  },
+  productSubtitle: {
+    color: "#B5B5B5",
+    fontSize: 14,
+    marginBottom: 16,
   },
   sectionRow: {
     flexDirection: "row",

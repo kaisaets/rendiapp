@@ -61,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
             style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
             onPress={() =>
               router.push({
-                pathname: "/pages/[id]",
+                pathname: "/product/[id]",
                 params: { id: product.id },
               })
             }

@@ -33,7 +33,7 @@ export const products: Product[] = [
   },
   {
     id: "2",
-    title: "HUGO fixed rõngaga",
+    title: "HUGO loose rõngaga",
     kirjeldus: "Täisvarustus, pehme surve, turvaline kinnitus",
     sobivusTitle: "Sobivus:",
     sobivusItems: [
