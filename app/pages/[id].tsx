@@ -15,7 +15,10 @@ export default function ProductDetailPage() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           <Text style={styles.title}>Toodet ei leitud</Text>
-          <Pressable style={styles.backButton} onPress={() => router.push("/")}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => router.push("/pages/home" as any)}
+          >
             <Text style={styles.backButtonText}>Tagasi avalehele</Text>
           </Pressable>
         </View>
@@ -51,7 +54,10 @@ export default function ProductDetailPage() {
           </Text>
         </View>
 
-        <Pressable style={styles.backButton} onPress={() => router.push("/")}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push("/pages/home" as any)}
+        >
           <Text style={styles.backButtonText}>Tagasi avalehele</Text>
         </Pressable>
       </ScrollView>
