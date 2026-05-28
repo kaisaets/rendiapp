@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, Dimensions
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import HugoL_angle_nobg from '@/assets/images/HugoL_angle-nobg.png';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +59,9 @@ export default function ProductDetailScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.imageCard}>
-          <Image source={{ uri: "https://images.unsplash.com/photo-1601574901081-370774676161?q=80&w=600&auto=format&fit=crop" }} style={styles.productImage} resizeMode="contain" />
+          <Image source={HugoL_angle_nobg} 
+    style={styles.productImage} 
+    resizeMode="contain" />
         </View>
 
         <View style={styles.infoMetaSection}>
