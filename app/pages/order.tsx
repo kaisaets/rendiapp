@@ -80,7 +80,7 @@ export default function Order({ onBack }: AddProductHeaderProps) {
               if (typeof onBack === "function") {
                 onBack();
               } else if (id) {
-                router.push(`/pages/${id}`);
+                router.push({ pathname: "/pages/[id]", params: { id } });
               } else {
                 router.back();
               }

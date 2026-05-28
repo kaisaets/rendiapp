@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import {
   Animated,
   ScrollView,
   StatusBar,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 import Navbar from "@/src/components/Navbar";
 import { BottomTabs } from "@/src/components/home/BottomTabs";
@@ -21,6 +23,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("home");
   const fadeIn = useRef(new Animated.Value(0)).current;
   const riseUp = useRef(new Animated.Value(18)).current;
+  const router = useRouter();
 
   useEffect(() => {
     Animated.parallel([
@@ -65,7 +68,14 @@ export default function Index() {
 
             <View style={styles.listWrap}>
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                // Wrap the card in a pressable link container pointing to the dynamic path
+                <TouchableOpacity 
+                  key={product.id} 
+                  activeOpacity={0.9}
+                  onPress={() => router.push({ pathname: "/product/[id]", params: { id: product.id } })}
+                >
+                  <ProductCard product={product} />
+                </TouchableOpacity>
               ))}
             </View>
           </View>
