@@ -44,8 +44,8 @@ export default function OrderSuccess() {
           color="#C89B3C"
           style={styles.icon}
         />
-        <Text style={styles.title}>SUURED TÄNUD RENTIMAST</Text>
-        <Text style={styles.subtitle}>SAADAME PEAGI TEIE PAKI TEELE</Text>
+    <Text style={styles.title}>TÄNAN OSTU SOORITUSE EEST</Text>
+        <Text style={styles.subtitle}>OLEME TÄNULIKUD, ET VALISITE FAGER SUULISED</Text>
         <Pressable style={styles.button} onPress={() => router.push("/")}>
           <Text style={styles.buttonText}>TAGASI AVALEHELE</Text>
         </Pressable>
