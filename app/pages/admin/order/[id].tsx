@@ -10,13 +10,22 @@ export default function AdminOrderDetailPage() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.push("/pages/admin/orders" as any);
+  };
+
   const order = getOrderById(id);
 
   if (!order) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
-        <OrdersHeader title="TELLIMUS" onBack={() => router.back()} />
+        <OrdersHeader title="TELLIMUS" onBack={handleBack} />
 
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>Tellimust ei leitud</Text>
@@ -31,7 +40,7 @@ export default function AdminOrderDetailPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
-      <OrdersHeader title="TELLIMUS" onBack={() => router.back()} />
+      <OrdersHeader title="TELLIMUS" onBack={handleBack} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
