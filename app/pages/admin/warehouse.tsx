@@ -40,6 +40,9 @@ export default function WarehousePage() {
             title={product.title}
             category="Ladu"
             image={product.image}
+            onPress={() =>
+              router.push(`/pages/admin/warehouse/${product.id}` as any)
+            }
           />
         ))}
       </ScrollView>
