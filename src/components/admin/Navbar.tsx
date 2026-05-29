@@ -34,7 +34,7 @@ const TABS = [
     label: "Tellimused",
     iconActive: "package-variant",
     iconInactive: "package-variant-closed",
-    route: "/pages/admin/admin_home",
+    route: "/pages/admin/orders",
   },
   {
     id: "Kliendid",

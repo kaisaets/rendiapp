@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 const GBstyles = StyleSheet.create({
-  BannerContainer: {
+  headerContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#C89B3C",

@@ -7,7 +7,7 @@ interface AddProductHeaderProps {
 
 export function AddProductHeader({ onBack }: AddProductHeaderProps) {
   return (
-    <View style={GBstyles.BannerContainer}>
+    <View style={GBstyles.headerContainer}>
       <TouchableOpacity
         onPress={onBack}
         style={styles.backBtn}

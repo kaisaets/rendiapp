@@ -11,7 +11,7 @@ export function WarehouseHeader({
   onViewChange,
 }: WarehouseHeaderProps) {
   return (
-    <View style={GBstyle.BannerContainer}>
+    <View style={GBstyle.headerContainer}>
       <Text style={GBstyle.headerText}>Laoseis</Text>
     </View>
   );
