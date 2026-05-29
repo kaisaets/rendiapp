@@ -3,13 +3,11 @@ import { defineKasutajaModel } from "./Kasutaja";
 import { defineMakseModel } from "./Makse";
 import { defineRentimineModel } from "./Rentimine";
 import { defineSuulineModel } from "./Suuline";
-import { defineSuulineRentimineModel } from "./SuulineRentimine";
 
 export const Kasutaja = defineKasutajaModel(sequelize);
 export const Suuline = defineSuulineModel(sequelize);
 export const Rentimine = defineRentimineModel(sequelize);
 export const Makse = defineMakseModel(sequelize);
-export const SuulineRentimine = defineSuulineRentimineModel(sequelize);
 
 Kasutaja.hasMany(Rentimine, {
   foreignKey: "kasutaja_id",
@@ -21,18 +19,14 @@ Rentimine.belongsTo(Kasutaja, {
   as: "kasutaja",
 });
 
-Rentimine.belongsToMany(Suuline, {
-  through: SuulineRentimine,
-  foreignKey: "rentimise_id",
-  otherKey: "suuline_id",
-  as: "suulised",
+Rentimine.belongsTo(Suuline, {
+  foreignKey: "suuline_id",
+  as: "suuline",
 });
 
-Suuline.belongsToMany(Rentimine, {
-  through: SuulineRentimine,
+Suuline.hasOne(Rentimine, {
   foreignKey: "suuline_id",
-  otherKey: "rentimise_id",
-  as: "rentimised",
+  as: "rentimine",
 });
 
 Rentimine.hasMany(Makse, {
@@ -50,7 +44,6 @@ export const models = {
   Suuline,
   Rentimine,
   Makse,
-  SuulineRentimine,
 };
 
 export async function syncModels({ alter = false, force = false } = {}) {

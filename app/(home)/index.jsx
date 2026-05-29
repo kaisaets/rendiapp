@@ -29,9 +29,17 @@ export default function Index() {
   const [kasutajaTelefon, setKasutajaTelefon] = useState("");
 
   const laadiAndmed = useCallback(async () => {
-    setViga(
-      "SQLite eemaldatud. Ühenda järgmises etapis backend API MySQL-iga.",
-    );
+    try {
+      const [s, k] = await Promise.all([
+        fetch("/api/suulised").then((r) => r.json()),
+        fetch("/api/kasutajad").then((r) => r.json()),
+      ]);
+      setSuulised(Array.isArray(s) ? s : []);
+      setKasutajad(Array.isArray(k) ? k : []);
+      setViga(null);
+    } catch {
+      setViga("Andmebaasiga ühendamine ebaõnnestus.");
+    }
   }, []);
 
   useEffect(() => {
@@ -49,10 +57,19 @@ export default function Index() {
       return;
     }
     try {
-      Alert.alert(
-        "Info",
-        "SQLite on eemaldatud. Lisa backend API endpoint suulise loomiseks.",
-      );
+      const res = await fetch("/api/suulised", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nimi,
+          material: material || null,
+          suurus: suurus ? parseInt(suurus) : null,
+          hind_paev: hindArv,
+          kirjeldus: kirjeldus || null,
+          tuup1: tuup || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
       setNimi("");
       setMaterial("");
       setSuurus("");
@@ -60,6 +77,7 @@ export default function Index() {
       setKogus("1");
       setKirjeldus("");
       setTuup(null);
+      laadiAndmed();
     } catch {
       Alert.alert("Viga", "Suulise lisamine ebaõnnestus.");
     }
@@ -71,13 +89,20 @@ export default function Index() {
       return;
     }
     try {
-      Alert.alert(
-        "Info",
-        "SQLite on eemaldatud. Lisa backend API endpoint kasutaja loomiseks.",
-      );
+      const res = await fetch("/api/kasutajad", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: kasutajaEmail,
+          nimi: kasutajaNimi || null,
+          telefon: kasutajaTelefon || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
       setKasutajaEmail("");
       setKasutajaNimi("");
       setKasutajaTelefon("");
+      laadiAndmed();
     } catch {
       Alert.alert("Viga", "Kasutaja lisamine ebaõnnestus.");
     }
@@ -90,10 +115,8 @@ export default function Index() {
         text: "Kustuta",
         style: "destructive",
         onPress: async () => {
-          Alert.alert(
-            "Info",
-            "SQLite on eemaldatud. Lisa backend API endpoint suulise kustutamiseks.",
-          );
+          await fetch(`/api/suulised/${id}`, { method: "DELETE" });
+          laadiAndmed();
         },
       },
     ]);
@@ -106,10 +129,8 @@ export default function Index() {
         text: "Kustuta",
         style: "destructive",
         onPress: async () => {
-          Alert.alert(
-            "Info",
-            "SQLite on eemaldatud. Lisa backend API endpoint kasutaja kustutamiseks.",
-          );
+          await fetch(`/api/kasutajad/${id}`, { method: "DELETE" });
+          laadiAndmed();
         },
       },
     ]);

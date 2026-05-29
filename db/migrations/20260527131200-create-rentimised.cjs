@@ -19,6 +19,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "RESTRICT",
       },
+      suuline_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "suulised",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      },
       algus_kuupaev: {
         type: Sequelize.DATEONLY,
         allowNull: false,

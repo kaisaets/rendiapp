@@ -19,6 +19,17 @@ export function defineRentimineModel(sequelize) {
         onUpdate: "CASCADE",
         onDelete: "RESTRICT",
       },
+      suuline_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        unique: true,
+        references: {
+          model: "suulised",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      },
       algus_kuupaev: {
         type: DataTypes.DATEONLY,
         allowNull: false,
