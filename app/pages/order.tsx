@@ -1,20 +1,22 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextStyle,
-    View,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextStyle,
+  View,
 } from "react-native";
 
 import { products } from "@/src/components/home/homeData";
 import {
-    Quicksand_400Regular,
-    Quicksand_500Medium,
-    Quicksand_700Bold,
+  Quicksand_400Regular,
+  Quicksand_500Medium,
+  Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
@@ -57,6 +59,9 @@ export default function Order({ onBack }: AddProductHeaderProps) {
     size?: string;
   }>();
 
+  const [address, setAddress] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+
   const product: Product | undefined = products.find((item) => item.id === id);
   const productTitle = product?.title ?? "";
   const rentPeriod = duration ?? "";
@@ -66,6 +71,33 @@ export default function Order({ onBack }: AddProductHeaderProps) {
   const totalValue = rentPrice
     ? `€${(Number(rentPrice) + transportValue).toFixed(2)}`
     : "";
+
+  const isOrderReady =
+    productTitle.length > 0 &&
+    rentPeriod.length > 0 &&
+    rentValue.length > 0 &&
+    sizeChoice.length > 0 &&
+    address.trim().length > 0 &&
+    cardNumber.trim().length >= 4;
+
+  const handleCheckout = () => {
+    if (!isOrderReady) {
+      return;
+    }
+
+    router.push({
+      pathname: "/pages/order_sucess",
+      params: {
+        id,
+        duration,
+        rentPrice,
+        size,
+        address,
+        cardNumber,
+      },
+    });
+  };
+
   // static layout — no params required
   const [fontsLoaded] = useFonts({
     Quicksand_400Regular,
@@ -130,20 +162,37 @@ export default function Order({ onBack }: AddProductHeaderProps) {
 
           <View style={styles.card}>
             <SectionTitle title="Tarneaadress" />
-            <Text style={styles.fieldText}>
-              Maakond, vald, linn, tänav, number
-            </Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Maakond, vald, linn, tänav, number"
+              placeholderTextColor="#8E8E93"
+              value={address}
+              onChangeText={setAddress}
+              multiline
+            />
           </View>
 
           <View style={styles.card}>
             <SectionTitle title="Makseviis" />
-            <Text style={styles.fieldText}>**** **** **** **** 1234</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Kaardinumber 1234 5678 9012 3456"
+              placeholderTextColor="#8E8E93"
+              value={cardNumber}
+              onChangeText={setCardNumber}
+              keyboardType="numeric"
+              maxLength={19}
+            />
           </View>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable style={styles.primaryButton} onPress={() => undefined}>
+        <Pressable
+          style={[styles.primaryButton, !isOrderReady && styles.disabledButton]}
+          onPress={handleCheckout}
+          disabled={!isOrderReady}
+        >
           <Text style={styles.primaryButtonText}>Rendi toode</Text>
         </Pressable>
       </View>
@@ -277,6 +326,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#2A2A2A",
     marginVertical: 10,
   },
+  inputField: {
+    color: "#F5F5F5",
+    fontSize: 14,
+    fontWeight: "400",
+    backgroundColor: "#1A1A1A",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2A2A2A",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    minHeight: 48,
+    textAlignVertical: "top",
+  },
   primaryButton: {
     width: "100%",
     backgroundColor: "#C89B3C",
@@ -284,6 +346,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
+  },
+  disabledButton: {
+    backgroundColor: "#444444",
   },
   primaryButtonText: {
     color: "#0A0A0A",
