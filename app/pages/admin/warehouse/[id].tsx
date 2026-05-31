@@ -1,5 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OrdersHeader } from "@/src/components/admin/orders/OrdersHeader";
@@ -45,8 +52,12 @@ export default function WarehouseProductDetailPage() {
       >
         <View style={styles.imageCard}>
           <Text style={styles.imageLabel}>{product.title}</Text>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imageText}>Pilt on olemas toote detailis</Text>
+          <View style={styles.imageFrame}>
+            <Image
+              source={product.image}
+              style={styles.productImage}
+              resizeMode="contain"
+            />
           </View>
         </View>
 
@@ -106,19 +117,15 @@ const styles = StyleSheet.create({
     fontFamily: "QuicksandSemiBold",
     marginBottom: 10,
   },
-  imagePlaceholder: {
-    height: 180,
-    borderWidth: 1,
-    borderColor: "#8D681B",
+  imageFrame: {
+    height: 280,
     borderRadius: 12,
-    backgroundColor: "#0C0C0C",
     alignItems: "center",
     justifyContent: "center",
   },
-  imageText: {
-    color: "#9B9B9B",
-    fontSize: 12,
-    fontFamily: "QuicksandRegular",
+  productImage: {
+    width: "100%",
+    height: "100%",
   },
   infoSection: {
     marginBottom: 26,
