@@ -1,34 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Client } from "@/src/components/admin/clients/ClientData";
-
-interface ClientRowProps {
-  client: Client;
-  onPress?: () => void;
-}
-
-function getStatusStyle(status: Client["status"]) {
-  if (status === "Aktiivne") {
-    return styles.statusActive;
-  }
-
-  if (status === "Ootel") {
-    return styles.statusPending;
-  }
-
-  if (status === "Tagastatud") {
-    return styles.statusReturned;
-  }
-
-  if (status === "Lopetatud") {
-    return styles.statusClosed;
-  }
-
-  return styles.statusMissing;
-}
-
-export function ClientRow({ client, onPress }: ClientRowProps) {
+export function ClientRow({
+  client,
+  onPress,
+}: {
+  client: any;
+  onPress: () => void;
+}) {
   return (
     <TouchableOpacity style={styles.row} activeOpacity={0.82} onPress={onPress}>
       <View style={styles.leftIconWrap}>
@@ -43,15 +22,6 @@ export function ClientRow({ client, onPress }: ClientRowProps) {
         <Text style={styles.name}>{client.name}</Text>
         <Text style={styles.meta}>{client.phone}</Text>
         <Text style={styles.meta}>{client.address}</Text>
-      </View>
-
-      <View style={styles.rightWrap}>
-        <View style={[styles.statusBadge, getStatusStyle(client.status)]}>
-          <Text style={styles.statusText}>{client.status}</Text>
-        </View>
-        {client.statusInfo ? (
-          <Text style={styles.statusInfo}>{client.statusInfo}</Text>
-        ) : null}
       </View>
 
       <MaterialCommunityIcons name="chevron-right" size={18} color="#6F4D0A" />

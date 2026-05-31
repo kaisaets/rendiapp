@@ -27,15 +27,15 @@ Muuda vajadusel .env väärtused:
 
 Esmakordsel käivitusel või peale suuremaid muudatusi:
 
-```bash
-docker compose up -d --build
-```
+````bash
+
+```docker compose up -d --build
 
 Edaspidi piisab:
 
 ```bash
 docker compose up -d
-```
+````
 
 Kontrollimiseks:
 
@@ -47,6 +47,14 @@ Oodatud tulemus:
 
 - mysql staatus on Up (healthy)
 - app staatus on Up
+
+Kõik andmed ja uuestikäivitamisel:
+
+````bash
+
+```docker compose down -v --remove-orphans
+
+````
 
 ## 3) Expo QR-koodi vaatamine
 

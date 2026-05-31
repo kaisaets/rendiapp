@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   ScrollView,
@@ -11,17 +11,57 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Navbar from "@/src/components/admin/Navbar";
-import { HeroBanner } from "@/src/components/home/HeroBanner";
+import { subscribeRentimisedChanged } from "@/src/components/admin/metadata/orders/events";
+import { getRentimised } from "@/src/features/rentimised/api";
+import {
+  isActiveRentimine,
+  isCompletedRentimine,
+  isPendingPaymentRentimine,
+  isReturnedRentimine,
+} from "@/src/features/rentimised/status";
+import { useRouter } from "expo-router";
 
-const SECTIONS = [
-  { label: "Aktiivsed tellimused", count: 4 },
-  { label: "Makse ootel", count: 2 },
-  { label: "Tagastused", count: 2 },
+type HomeSection = {
+  key: string;
+  label: string;
+  count: number;
+  route: string;
+};
+
+const INITIAL_SECTIONS: HomeSection[] = [
+  {
+    key: "active",
+    label: "Aktiivsed tellimused",
+    count: 0,
+    route: "/pages/admin/orders",
+  },
+  {
+    key: "pending-payment",
+    label: "Makse ootel",
+    count: 0,
+    route: "/pages/admin/orders",
+  },
+  {
+    key: "returns",
+    label: "Tagastused",
+    count: 0,
+    route: "/pages/admin/orders",
+  },
+  {
+    key: "completed",
+    label: "Lõpetatud tellimused",
+    count: 0,
+    route: "/pages/admin/orders",
+  },
 ];
 
 export default function AdminHome() {
+  const router = useRouter();
   const fadeIn = useRef(new Animated.Value(0)).current;
   const riseUp = useRef(new Animated.Value(18)).current;
+  const [sections, setSections] = useState<HomeSection[]>(INITIAL_SECTIONS);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
 
   useEffect(() => {
     Animated.parallel([
@@ -38,6 +78,80 @@ export default function AdminHome() {
     ]).start();
   }, [fadeIn, riseUp]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMetrics() {
+      try {
+        setLoadingMetrics(true);
+        const rentimised = await getRentimised();
+
+        if (!isMounted) {
+          return;
+        }
+
+        const activeCount = rentimised.filter((rentimine) =>
+          isActiveRentimine(rentimine),
+        ).length;
+        const pendingPaymentCount = rentimised.filter((rentimine) =>
+          isPendingPaymentRentimine(rentimine),
+        ).length;
+        const returnsCount = rentimised.filter((rentimine) =>
+          isReturnedRentimine(rentimine),
+        ).length;
+        const completedCount = rentimised.filter((rentimine) =>
+          isCompletedRentimine(rentimine),
+        ).length;
+
+        setSections([
+          {
+            key: "active",
+            label: "Aktiivsed tellimused",
+            count: activeCount,
+            route: "/pages/admin/orders",
+          },
+          {
+            key: "pending-payment",
+            label: "Makse ootel",
+            count: pendingPaymentCount,
+            route: "/pages/admin/orders",
+          },
+          {
+            key: "returns",
+            label: "Tagastused",
+            count: returnsCount,
+            route: "/pages/admin/orders",
+          },
+          {
+            key: "completed",
+            label: "Lõpetatud tellimused",
+            count: completedCount,
+            route: "/pages/admin/orders",
+          },
+        ]);
+        setMetricsError(null);
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setMetricsError("Avalehe andmete laadimine ebaõnnestus.");
+      } finally {
+        if (isMounted) {
+          setLoadingMetrics(false);
+        }
+      }
+    }
+
+    loadMetrics();
+    const unsubscribe = subscribeRentimisedChanged(loadMetrics);
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -50,18 +164,26 @@ export default function AdminHome() {
         <Animated.View
           style={{ opacity: fadeIn, transform: [{ translateY: riseUp }] }}
         >
-          <HeroBanner />
-
           <View style={styles.mainContent}>
             <Text style={styles.title}>Tere tulemast tagasi!</Text>
+            {loadingMetrics ? (
+              <Text style={styles.helperText}>Laen avalehe andmeid...</Text>
+            ) : null}
+            {metricsError ? (
+              <Text style={styles.errorText}>{metricsError}</Text>
+            ) : null}
 
-            {SECTIONS.map((section) => (
-              <View key={section.label} style={styles.section}>
+            {sections.map((section) => (
+              <View key={section.key} style={styles.section}>
                 <Text style={styles.sectionLabel}>{section.label}</Text>
                 <Text style={styles.sectionCount}>
                   {section.count} tellimust
                 </Text>
-                <TouchableOpacity style={styles.moreBtn} activeOpacity={0.7}>
+                <TouchableOpacity
+                  style={styles.moreBtn}
+                  activeOpacity={0.7}
+                  onPress={() => router.push(section.route as any)}
+                >
                   <Text style={styles.moreBtnText}>Näita rohkem →</Text>
                 </TouchableOpacity>
               </View>
@@ -69,6 +191,7 @@ export default function AdminHome() {
           </View>
         </Animated.View>
       </ScrollView>
+
       <Navbar activeTab="Avaleht" />
     </SafeAreaView>
   );
@@ -97,6 +220,20 @@ const styles = StyleSheet.create({
     marginBottom: 28,
     display: "flex",
     margin: "auto",
+  },
+  helperText: {
+    color: "#9A9A9A",
+    fontSize: 13,
+    fontFamily: "QuicksandRegular",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  errorText: {
+    color: "#E97A7A",
+    fontSize: 13,
+    fontFamily: "QuicksandRegular",
+    marginBottom: 6,
+    textAlign: "center",
   },
   section: {
     borderTopWidth: 1,

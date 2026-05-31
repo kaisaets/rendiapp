@@ -1,10 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Order } from "@/src/components/admin/orders/ordersData";
+import type { AdminOrderView } from "@/src/features/rentimised/orderFormat";
 
 interface OrdersRowProps {
-  order: Order;
+  order: AdminOrderView;
   onPress?: () => void;
 }
 

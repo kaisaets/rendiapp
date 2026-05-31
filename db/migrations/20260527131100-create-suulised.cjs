@@ -77,6 +77,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      image_path: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      image_filename: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
     });
   },
 

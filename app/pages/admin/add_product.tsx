@@ -2,9 +2,13 @@ import { AddProductDropdown } from "@/src/components/admin/warehouse/AddProductD
 import { AddProductHeader } from "@/src/components/admin/warehouse/AddProductHeader";
 import { AddProductPhotoUpload } from "@/src/components/admin/warehouse/AddProductPhotoUpload";
 import { WarehouseAddButton } from "@/src/components/admin/warehouse/WarehouseAddButton";
+import { createSuuline } from "@/src/features/suulised/api";
+import { ApiError } from "@/src/lib/api/http";
+import type { CreateSuulineInput } from "@/src/lib/api/types";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,31 +20,225 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const MATERJAL_OPTIONS = ["Raud", "Teras", "Titaan", "Kroom-molübdeen"];
-const TUUP_OPTIONS = [
-  "Loose ring",
-  "Fixed ring",
-  "Eggbutt",
-  "Full cheek",
-  "D-ring",
+const MATERJAL_OPTIONS = [
+  "Sweet iron",
+  "Titanium",
+  "Sweet gold",
+  "Rubber",
+  "Leather",
+  "Stainless steel",
 ];
-const RONGAS_OPTIONS = ["Üksik rõngas", "Topeltrõngas", "Lülirõngas"];
-const SAADAVUS_OPTIONS = ["Saadaval", "Tellitav"];
+const TUUP_OPTIONS = [
+  "kaheosaline",
+  "kolmeosaline",
+  "sirge",
+  "lukustuv",
+  "muu",
+];
+const RONGAS_OPTIONS = [
+  "loose ring",
+  "fixed ring",
+  "full cheek",
+  "baucher",
+  "D ring",
+  "gag",
+  "Pelham",
+];
+const SAADAVUS_OPTIONS = ["Saadaval", "Renditud"];
+
+type MaterialValue = NonNullable<CreateSuulineInput["material"]>;
+type TuupValue = NonNullable<CreateSuulineInput["tuup1"]>;
+type RingTypeValue = NonNullable<CreateSuulineInput["ring_type"]>;
+type StaatusValue = NonNullable<CreateSuulineInput["staatus"]>;
+
+const MATERIAL_SET = new Set(MATERJAL_OPTIONS);
+const TUUP_SET = new Set(TUUP_OPTIONS);
+const RONGAS_SET = new Set(RONGAS_OPTIONS);
+const SAADAVUS_SET = new Set(SAADAVUS_OPTIONS);
 
 export default function AddProductPage() {
   const router = useRouter();
 
   const [photoUri, setPhotoUri] = useState<string | undefined>();
+  const [photoBase64, setPhotoBase64] = useState<string | undefined>();
+  const [photoMimeType, setPhotoMimeType] = useState<string | undefined>();
+  const [photoOriginalName, setPhotoOriginalName] = useState<
+    string | undefined
+  >();
   const [nimi, setNimi] = useState("");
   const [suurus, setSuurus] = useState("");
   const [paksus, setPaksus] = useState("");
-  const [materjal, setMaterjal] = useState("");
-  const [tuup, setTuup] = useState("");
-  const [rongas, setRongas] = useState("");
+  const [materjal, setMaterjal] = useState<MaterialValue | "">("");
+  const [tuup, setTuup] = useState<TuupValue | "">("");
+  const [rongas, setRongas] = useState<RingTypeValue | "">("");
   const [kirjeldus, setKirjeldus] = useState("");
   const [rendihind, setRendihind] = useState("");
   const [muugihind, setMuugihind] = useState("");
-  const [saadavus, setSaadavus] = useState("");
+  const [saadavus, setSaadavus] = useState<StaatusValue | "">("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  function handleMaterjalSelect(value: string) {
+    if (!value) {
+      setMaterjal("");
+      return;
+    }
+
+    if (MATERIAL_SET.has(value)) {
+      setFormError(null);
+      setMaterjal(value as MaterialValue);
+    }
+  }
+
+  function handleTuupSelect(value: string) {
+    if (!value) {
+      setTuup("");
+      return;
+    }
+
+    if (TUUP_SET.has(value)) {
+      setFormError(null);
+      setTuup(value as TuupValue);
+    }
+  }
+
+  function handleRongasSelect(value: string) {
+    if (!value) {
+      setRongas("");
+      return;
+    }
+
+    if (RONGAS_SET.has(value)) {
+      setFormError(null);
+      setRongas(value as RingTypeValue);
+    }
+  }
+
+  function handleSaadavusSelect(value: string) {
+    if (!value) {
+      setSaadavus("");
+      return;
+    }
+
+    if (SAADAVUS_SET.has(value)) {
+      setFormError(null);
+      setSaadavus(value as StaatusValue);
+    }
+  }
+
+  function pickPhotoOnWeb() {
+    if (Platform.OS !== "web") {
+      Alert.alert(
+        "Info",
+        "Praegu on pildi valimine seadistatud veebivaate jaoks.",
+      );
+      return;
+    }
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = String(reader.result ?? "");
+        if (!dataUrl) {
+          return;
+        }
+
+        const base64 = dataUrl.includes(",")
+          ? dataUrl.split(",").pop()
+          : dataUrl;
+
+        setPhotoUri(dataUrl);
+        setPhotoBase64(base64);
+        setPhotoMimeType(file.type || undefined);
+        setPhotoOriginalName(file.name || undefined);
+        setFormError(null);
+      };
+
+      reader.readAsDataURL(file);
+    };
+
+    input.click();
+  }
+
+  async function handleCreateProduct() {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (
+      !photoBase64 ||
+      !nimi.trim() ||
+      !suurus.trim() ||
+      !paksus.trim() ||
+      !materjal ||
+      !tuup ||
+      !rongas ||
+      !kirjeldus.trim() ||
+      !rendihind.trim() ||
+      !muugihind.trim() ||
+      !saadavus
+    ) {
+      setFormError("Palun täida kõik väljad ja lisa pilt.");
+      return;
+    }
+
+    const suurusValue = Number.parseInt(suurus, 10);
+    const paksusValue = Number.parseInt(paksus, 10);
+    const rendihindValue = Number.parseFloat(rendihind);
+    const muugihindValue = Number.parseFloat(muugihind);
+
+    if (
+      Number.isNaN(suurusValue) ||
+      Number.isNaN(paksusValue) ||
+      Number.isNaN(rendihindValue) ||
+      Number.isNaN(muugihindValue)
+    ) {
+      setFormError(
+        "Suurus, paksus, rendihind ja müügihind peavad olema numbrid.",
+      );
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setFormError(null);
+
+      await createSuuline({
+        nimi: nimi.trim(),
+        material: materjal,
+        suurus: suurusValue,
+        thickness: paksusValue,
+        tuup1: tuup,
+        ring_type: rongas,
+        kirjeldus: kirjeldus.trim(),
+        hind_paev: rendihindValue,
+        buyout_price: muugihindValue,
+        staatus: saadavus,
+        image_base64: photoBase64,
+        image_mime_type: photoMimeType,
+        image_original_name: photoOriginalName,
+      });
+
+      router.replace("/pages/admin/warehouse" as any);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setFormError(error.message || "Toote lisamine ebaõnnestus.");
+      } else {
+        setFormError("Toote lisamine ebaõnnestus.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -59,15 +257,19 @@ export default function AddProductPage() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <AddProductPhotoUpload uri={photoUri} onPress={() => {}} />
+          <AddProductPhotoUpload uri={photoUri} onPress={pickPhotoOnWeb} />
 
           {/* Toote nimi */}
           <TextInput
+            nativeID="add-product-nimi"
             style={styles.input}
             placeholder="Toote nimi..."
             placeholderTextColor="#555555"
             value={nimi}
-            onChangeText={setNimi}
+            onChangeText={(value) => {
+              setNimi(value);
+              setFormError(null);
+            }}
           />
 
           {/* Suurus + Paksus */}
@@ -75,24 +277,32 @@ export default function AddProductPage() {
             <View style={[styles.inputRow, { flex: 1, marginRight: 8 }]}>
               <Text style={styles.rowLabel}>Suurus:</Text>
               <TextInput
+                nativeID="add-product-suurus"
                 style={styles.rowInput}
                 placeholder="0"
                 placeholderTextColor="#555555"
                 keyboardType="numeric"
                 value={suurus}
-                onChangeText={setSuurus}
+                onChangeText={(value) => {
+                  setSuurus(value);
+                  setFormError(null);
+                }}
               />
               <Text style={styles.rowUnit}>mm</Text>
             </View>
             <View style={[styles.inputRow, { flex: 1 }]}>
               <Text style={styles.rowLabel}>Paksus:</Text>
               <TextInput
+                nativeID="add-product-paksus"
                 style={styles.rowInput}
                 placeholder="0"
                 placeholderTextColor="#555555"
                 keyboardType="numeric"
                 value={paksus}
-                onChangeText={setPaksus}
+                onChangeText={(value) => {
+                  setPaksus(value);
+                  setFormError(null);
+                }}
               />
               <Text style={styles.rowUnit}>mm</Text>
             </View>
@@ -103,23 +313,24 @@ export default function AddProductPage() {
             label="Materjal"
             options={MATERJAL_OPTIONS}
             value={materjal}
-            onSelect={setMaterjal}
+            onSelect={handleMaterjalSelect}
           />
           <AddProductDropdown
             label="Tüüp"
             options={TUUP_OPTIONS}
             value={tuup}
-            onSelect={setTuup}
+            onSelect={handleTuupSelect}
           />
           <AddProductDropdown
             label="Rõngas"
             options={RONGAS_OPTIONS}
             value={rongas}
-            onSelect={setRongas}
+            onSelect={handleRongasSelect}
           />
 
           {/* Kirjeldus */}
           <TextInput
+            nativeID="add-product-kirjeldus"
             style={[styles.input, styles.textarea]}
             placeholder="Kirjeldus"
             placeholderTextColor="#555555"
@@ -127,7 +338,10 @@ export default function AddProductPage() {
             numberOfLines={4}
             textAlignVertical="top"
             value={kirjeldus}
-            onChangeText={setKirjeldus}
+            onChangeText={(value) => {
+              setKirjeldus(value);
+              setFormError(null);
+            }}
           />
 
           {/* Rendihind + Müügihind */}
@@ -135,24 +349,32 @@ export default function AddProductPage() {
             <View style={[styles.inputRow, { flex: 1, marginRight: 8 }]}>
               <Text style={styles.rowLabel}>Rendihind:</Text>
               <TextInput
+                nativeID="add-product-rendihind"
                 style={styles.rowInput}
                 placeholder="0"
                 placeholderTextColor="#555555"
                 keyboardType="numeric"
                 value={rendihind}
-                onChangeText={setRendihind}
+                onChangeText={(value) => {
+                  setRendihind(value);
+                  setFormError(null);
+                }}
               />
               <Text style={styles.rowUnit}>€</Text>
             </View>
             <View style={[styles.inputRow, { flex: 1 }]}>
               <Text style={styles.rowLabel}>Müügihind:</Text>
               <TextInput
+                nativeID="add-product-muugihind"
                 style={styles.rowInput}
                 placeholder="0"
                 placeholderTextColor="#555555"
                 keyboardType="numeric"
                 value={muugihind}
-                onChangeText={setMuugihind}
+                onChangeText={(value) => {
+                  setMuugihind(value);
+                  setFormError(null);
+                }}
               />
               <Text style={styles.rowUnit}>€</Text>
             </View>
@@ -163,10 +385,18 @@ export default function AddProductPage() {
             label="Saadavus"
             options={SAADAVUS_OPTIONS}
             value={saadavus}
-            onSelect={setSaadavus}
+            onSelect={handleSaadavusSelect}
           />
 
-          <WarehouseAddButton onPress={() => {}} />
+          <WarehouseAddButton
+            onPress={handleCreateProduct}
+            disabled={isSubmitting}
+            label={isSubmitting ? "Salvestan..." : "Lisa toode"}
+          />
+          {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
+          {isSubmitting ? (
+            <Text style={styles.savingText}>Salvestan toodet...</Text>
+          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -232,5 +462,19 @@ const styles = StyleSheet.create({
     color: "#888888",
     fontFamily: "QuicksandRegular",
     marginLeft: 4,
+  },
+  savingText: {
+    color: "#C89B3C",
+    textAlign: "center",
+    marginTop: 8,
+    fontSize: 13,
+    fontFamily: "QuicksandMedium",
+  },
+  errorText: {
+    color: "#E97A7A",
+    textAlign: "center",
+    marginTop: 8,
+    fontSize: 13,
+    fontFamily: "QuicksandMedium",
   },
 });

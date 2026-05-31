@@ -1,3 +1,4 @@
+import { AdminMetadataLauncher } from "@/src/components/admin/metadata/AdminMetadataLauncher";
 import { applyGlobalTypography } from "@/src/theme/typography";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -26,5 +27,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }} />
+      <AdminMetadataLauncher />
+    </>
+  );
 }

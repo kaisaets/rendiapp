@@ -77,6 +77,14 @@ export function defineSuulineModel(sequelize) {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      image_path: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
+      image_filename: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
     },
     {
       tableName: "suulised",

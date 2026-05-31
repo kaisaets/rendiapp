@@ -1,12 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface AddProductDropdownProps {
@@ -24,11 +25,25 @@ export function AddProductDropdown({
 }: AddProductDropdownProps) {
   const [open, setOpen] = useState(false);
 
+  const blurWebActiveElement = () => {
+    if (Platform.OS !== "web") {
+      return;
+    }
+
+    const active = document.activeElement;
+    if (active && "blur" in active) {
+      (active as HTMLElement).blur();
+    }
+  };
+
   return (
     <>
       <TouchableOpacity
         style={styles.field}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          blurWebActiveElement();
+          setOpen(true);
+        }}
         activeOpacity={0.8}
       >
         <Text style={[styles.fieldText, !value && styles.placeholder]}>
@@ -41,7 +56,10 @@ export function AddProductDropdown({
         <TouchableOpacity
           style={styles.backdrop}
           activeOpacity={1}
-          onPress={() => setOpen(false)}
+          onPress={() => {
+            blurWebActiveElement();
+            setOpen(false);
+          }}
         >
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>{label}</Text>
@@ -52,6 +70,7 @@ export function AddProductDropdown({
                   style={styles.option}
                   onPress={() => {
                     onSelect(opt);
+                    blurWebActiveElement();
                     setOpen(false);
                   }}
                   activeOpacity={0.75}
