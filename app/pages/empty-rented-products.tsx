@@ -1,58 +1,44 @@
 import {
+    Quicksand_400Regular,
     Quicksand_500Medium,
     Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { useRouter } from "expo-router";
+import React from "react";
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
-export default function OrderSuccess() {
+export default function EmptyRentedProducts() {
   const router = useRouter();
-  const { id, address, cardNumber } = useLocalSearchParams<{
-    id?: string;
-    address?: string;
-    cardNumber?: string;
-  }>();
-
   const [fontsLoaded] = useFonts({
+    Quicksand_400Regular,
     Quicksand_500Medium,
     Quicksand_700Bold,
   });
 
-  useEffect(() => {
-    if (!id || !address || !cardNumber) {
-      router.replace({ pathname: "/pages/order" });
-    }
-  }, [address, cardNumber, id, router]);
-
   if (!fontsLoaded) {
-    return null;
-  }
-
-  if (!id || !address || !cardNumber) {
     return null;
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <MaterialCommunityIcons
-          name="check-circle"
-          size={88}
-          color="#C89B3C"
+        <Ionicons
+          name="bag-outline"
+          size={80}
+          color="#CC9D36"
           style={styles.icon}
         />
-        <Text style={styles.title}>TÄNAN OSTU SOORITUSE EEST</Text>
+        <Text style={styles.title}>Tootet ei leitud</Text>
         <Text style={styles.subtitle}>
-          OLEME TÄNULIKUD, ET VALISITE FAGER SUULISED
+          Hetkel pole tooted saadaval. Palun kontrollige hiljem uuesti.
         </Text>
         <Pressable
           style={styles.button}
           onPress={() => router.replace({ pathname: "/" })}
         >
-          <Text style={styles.buttonText}>TAGASI AVALEHELE</Text>
+          <Text style={styles.buttonText}>Tagasi avalehele</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -69,7 +55,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: "center",
     alignItems: "center",
-    gap: 24,
+    gap: 20,
   },
   icon: {
     marginBottom: 16,
@@ -79,25 +65,25 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "Quicksand_700Bold",
     textAlign: "center",
-    marginBottom: 8,
   },
   subtitle: {
     color: "#B5B5B5",
-    fontSize: 18,
-    fontFamily: "Quicksand_500Medium",
+    fontSize: 16,
+    fontFamily: "Quicksand_400Regular",
     textAlign: "center",
-    lineHeight: 26,
+    lineHeight: 24,
   },
   button: {
-    marginTop: 24,
-    backgroundColor: "#C89B3C",
-    paddingVertical: 16,
+    marginTop: 16,
+    backgroundColor: "#CC9D36",
+    paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 18,
+    borderRadius: 16,
   },
   buttonText: {
     color: "#0A0A0A",
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Quicksand_500Medium",
+    fontWeight: "600",
   },
 });

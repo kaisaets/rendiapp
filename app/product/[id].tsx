@@ -73,7 +73,7 @@ export default function ProductDetailScreen() {
       {/* HEADER ROW */}
       <View style={styles.headerRow}>
         <TouchableOpacity
-          onPress={() => router.push("/")}
+          onPress={() => router.replace({ pathname: "/" })}
           style={styles.headerButton}
         >
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -324,7 +324,7 @@ export default function ProductDetailScreen() {
           onPress={() => {
             if (isFormValid) {
               router.push({
-                pathname: "/pages/order",
+                pathname: "./pages/order",
                 params: {
                   id: String(bitFromDatabase.bit_id),
                   duration: selectedDuration ?? "2 nädalat",
