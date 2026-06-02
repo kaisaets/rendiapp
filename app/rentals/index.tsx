@@ -3,6 +3,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Navbar from '@/src/components/Navbar';
+import { useRouter } from 'expo-router';
+
+const router = useRouter();
 
 ///mock data
 // SELECT * FROM rentals INNER JOIN bits ON ... WHERE user_id = current_user
@@ -40,7 +43,7 @@ export default function MyRentals() {
     );
 
     const RentalCard = ({ item }: { item: typeof mockUserRentalsFromDB[0] }) => (
-        <TouchableOpacity style={styles.rentalCard} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.rentalCard} activeOpacity={0.8} onPress={() => router.push(`/rentals/${item.rental_id}`)}>
             <View style={styles.cardImageContainer}>
                 {/* Updated source prop to seamlessly render your local photo asset */}
                 <Image
