@@ -38,7 +38,7 @@ export default function MyBits() {
     const isCompleted = rentalItem.status === "müüdud" || rentalItem.status === "tagastatud";
 
     const handleBuyout = () => alert("Toode välja ostetud!");
-    const handleReturn = () => alert("Tagastusprotsess algatatud!");
+    const handleReturn = () => router.push("/rentals/return");
     const handleDownloadReceipt = () => alert("Kviitungi allalaadimine käivitatud...");
 
     return (
