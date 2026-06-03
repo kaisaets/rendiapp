@@ -1,6 +1,6 @@
 import {
-    Quicksand_500Medium,
-    Quicksand_700Bold,
+  Quicksand_500Medium,
+  Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
@@ -23,7 +23,7 @@ export default function OrderSuccess() {
 
   useEffect(() => {
     if (!id || !address || !cardNumber) {
-      router.replace("./pages/order.tsx");
+      router.replace("/pages/order");
     }
   }, [address, cardNumber, id, router]);
 
@@ -44,9 +44,11 @@ export default function OrderSuccess() {
           color="#C89B3C"
           style={styles.icon}
         />
-    <Text style={styles.title}>TÄNAN OSTU SOORITUSE EEST</Text>
-        <Text style={styles.subtitle}>OLEME TÄNULIKUD, ET VALISITE FAGER SUULISED</Text>
-        <Pressable style={styles.button} onPress={() => router.push("./pages/index.tsx")}>
+        <Text style={styles.title}>TÄNAN OSTU SOORITUSE EEST</Text>
+        <Text style={styles.subtitle}>
+          OLEME TÄNULIKUD, ET VALISITE FAGER SUULISED
+        </Text>
+        <Pressable style={styles.button} onPress={() => router.push("/")}>
           <Text style={styles.buttonText}>TAGASI AVALEHELE</Text>
         </Pressable>
       </View>

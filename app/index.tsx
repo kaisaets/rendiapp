@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import {
   Animated,
   ScrollView,
@@ -72,7 +72,7 @@ export default function Index() {
                 <TouchableOpacity 
                   key={product.id} 
                   activeOpacity={0.9}
-                  onPress={() => router.push({ pathname: "./product/[id]", params: { id: product.id } })}
+                  onPress={() => router.push(`/product/${product.id}`)}
                 >
                   <ProductCard product={product} />
                 </TouchableOpacity>

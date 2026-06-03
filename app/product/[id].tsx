@@ -1,4 +1,4 @@
-import { products } from "@/src/components/home/homeData";
+import HugoL_angle_nobg from "@/assets/images/HugoL_angle-nobg.png";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -21,39 +21,26 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
 
-  const product = products.find((item) => item.id === id);
-
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
   const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  if (!product) {
-    return (
-      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-        <Text style={styles.notFoundText}>Toodet ei leitud.</Text>
-      </View>
-    );
-  }
-
+  //mock data
   const bitFromDatabase = {
-    bit_id: Number(product.id),
-    name: product.title,
+    bit_id: 1,
+    name: "Hugo",
     material: "Titanium",
     size: 125,
     status: "Saadaval",
     daily_rate: 5.0,
-    description: product.kirjeldus,
+    description:
+      "Suuline lukustub ettepoole, pakkudes stabiilset kontakti hobustele, kes kipuvad suulist taga ajama. Lubab samas rohkem liikuvust ja sobib hobustele, kes vajavad pehmemat märguannet.",
     type: "lukustuv",
     ring_type: "fixed ring",
     thickness: 14,
     buyout_price: 149.0,
-    image: product.image,
-    sobivusTitle: product.sobivusTitle ?? "Sobivus",
-    sobivusItems: product.sobivusItems ?? [],
-    infoLines: product.infoLines ?? [],
-    rating: product.rating ?? 0,
   };
 
   const sizeOptions = ["11.5 cm", "12.5 cm", "13.5 cm"];
@@ -68,12 +55,28 @@ export default function ProductDetailScreen() {
 
   const isFormValid = selectedSize !== null && selectedDuration !== null;
 
+  const handleContinue = () => {
+    if (!isFormValid) {
+      return;
+    }
+
+    router.push({
+      pathname: "/pages/order",
+      params: {
+        id,
+        duration: selectedDuration,
+        rentPrice: getTotalSum(),
+        size: selectedSize,
+      },
+    });
+  };
+
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       {/* HEADER ROW */}
       <View style={styles.headerRow}>
         <TouchableOpacity
-          onPress={() => router.replace({ pathname: "/" })}
+          onPress={() => router.back()}
           style={styles.headerButton}
         >
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -97,7 +100,7 @@ export default function ProductDetailScreen() {
       >
         <View style={styles.imageCard}>
           <Image
-            source={bitFromDatabase.image}
+            source={HugoL_angle_nobg}
             style={styles.productImage}
             resizeMode="contain"
           />
@@ -320,20 +323,8 @@ export default function ProductDetailScreen() {
             !isFormValid && styles.disabledButton,
           ]}
           activeOpacity={0.8}
+          onPress={handleContinue}
           disabled={!isFormValid}
-          onPress={() => {
-            if (isFormValid) {
-              router.push({
-                pathname: "./pages/order",
-                params: {
-                  id: String(bitFromDatabase.bit_id),
-                  duration: selectedDuration ?? "2 nädalat",
-                  rentPrice: getTotalSum(),
-                  size: selectedSize ?? "12.5 cm",
-                },
-              });
-            }
-          }}
         >
           <Text
             style={[
@@ -366,12 +357,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     flex: 1,
     textAlign: "center",
-  },
-  notFoundText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
   },
   scrollContainer: { padding: 16, paddingBottom: 150 }, // Increased bottom padding to avoid hiding content under summary row
   imageCard: {
