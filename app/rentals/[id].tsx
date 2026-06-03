@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     headerTitle: { color: '#000000', fontSize: 16, fontWeight: 'bold', letterSpacing: 0.5 },
     headerSpacer: { width: 40 },
     content: { flex: 1, alignItems: 'center', paddingHorizontal: 24, paddingTop: 24 },
-    goldBorderImageCard: { backgroundColor: '#0A0A0A', borderRadius: 44, borderWidth: 1.5, borderColor: '#CC9D36', width: '100%', height: width * 0.65, alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
+    goldBorderImageCard: { backgroundColor: '#0A0A0A', borderRadius: 44, borderWidth: 1.5, borderColor: '#CC9D36', width: '100%', aspectRatio: 1, minHeight: 220, alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
     productImage: { width: '80%', height: '80%' },
     mainTitle: { color: '#FFFFFF', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
     completedStatusBadge: { color: '#4CD964', fontSize: 16, fontWeight: '600', alignSelf: 'flex-start', marginTop: 12, marginBottom: 24 },

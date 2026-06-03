@@ -24,8 +24,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderColor: "#3B2A0E",
     backgroundColor: "#070707",
-    height: 500,
     width: "100%",
+    aspectRatio: 16 / 9,
+    minHeight: 260,
   },
   image: {
     flex: 1,

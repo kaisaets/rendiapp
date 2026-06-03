@@ -198,8 +198,10 @@ const styles = StyleSheet.create({
   },
   page: {
     flex: 1,
+    width: "100%",
   },
   content: {
+    flexGrow: 1,
     paddingTop: 8,
     paddingBottom: 90,
   },

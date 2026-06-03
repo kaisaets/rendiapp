@@ -1,9 +1,7 @@
 import HugoL_angle_nobg from "@/assets/images/HugoL_angle-nobg.png";
-import { getSuulineById } from "@/src/features/suulised/api";
-import type { Suuline } from "@/src/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   Image,
@@ -20,6 +18,7 @@ const { width } = Dimensions.get("window");
 
 export default function ProductDetailScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const productId = Array.isArray(id) ? id[0] : id;
@@ -76,17 +75,18 @@ export default function ProductDetailScreen() {
   }, [productId]);
 
   const bitFromDatabase = {
-    bit_id: suuline?.id ?? 0,
-    name: suuline?.nimi ?? "Suuline",
-    material: suuline?.material ?? "-",
-    size: suuline?.suurus ?? null,
-    status: suuline?.staatus ?? "-",
-    daily_rate: Number(suuline?.hind_paev ?? 0),
-    description: suuline?.kirjeldus?.trim() || "Kirjeldus puudub.",
-    type: suuline?.tuup1 ?? "-",
-    ring_type: suuline?.ring_type ?? "-",
-    thickness: suuline?.thickness ?? null,
-    buyout_price: suuline?.buyout_price ?? null,
+    bit_id: 1,
+    name: "Hugo",
+    material: "Titanium",
+    size: 125,
+    status: "Saadaval",
+    daily_rate: 5.0,
+    description:
+      "Suuline lukustub ettepoole, pakkudes stabiilset kontakti hobustele, kes kipuvad suulist taga ajama. Lubab samas rohkem liikuvust ja sobib hobustele, kes vajavad pehmemat märguannet.",
+    type: "lukustuv",
+    ring_type: "fixed ring",
+    thickness: 14,
+    buyout_price: 149.0,
   };
 
   const sizeOptions = ["11.5 cm", "12.5 cm", "13.5 cm"];
@@ -101,39 +101,21 @@ export default function ProductDetailScreen() {
 
   const isFormValid = selectedSize !== null && selectedDuration !== null;
 
-  if (loading) {
-    return (
-      <View
-        style={[
-          styles.safeArea,
-          styles.centerState,
-          { paddingTop: insets.top },
-        ]}
-      >
-        <Text style={styles.stateText}>Laen toote andmeid...</Text>
-      </View>
-    );
-  }
+  const handleContinue = () => {
+    if (!isFormValid) {
+      return;
+    }
 
-  if (error || !suuline) {
-    return (
-      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.headerButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Suulise andmed</Text>
-          <View style={styles.headerButton} />
-        </View>
-        <View style={styles.centerState}>
-          <Text style={styles.stateText}>{error || "Toodet ei leitud."}</Text>
-        </View>
-      </View>
-    );
-  }
+    router.push({
+      pathname: "/pages/order",
+      params: {
+        id,
+        duration: selectedDuration,
+        rentPrice: getTotalSum(),
+        size: selectedSize,
+      },
+    });
+  };
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
@@ -251,17 +233,13 @@ export default function ProductDetailScreen() {
           <View style={styles.propertyRow}>
             <Text style={styles.propertyKey}>Paksus:</Text>
             <Text style={styles.propertyValue}>
-              {bitFromDatabase.thickness
-                ? `${bitFromDatabase.thickness} mm`
-                : "-"}
+              {bitFromDatabase.thickness} mm
             </Text>
           </View>
           <View style={styles.propertyRow}>
             <Text style={styles.propertyKey}>Väljaostuhind:</Text>
             <Text style={styles.propertyValue}>
-              {bitFromDatabase.buyout_price
-                ? `€${Number(bitFromDatabase.buyout_price).toFixed(2)}`
-                : "-"}
+              €{bitFromDatabase.buyout_price?.toFixed(2)}
             </Text>
           </View>
           <View style={styles.propertyRow}>
@@ -391,6 +369,7 @@ export default function ProductDetailScreen() {
             !isFormValid && styles.disabledButton,
           ]}
           activeOpacity={0.8}
+          onPress={handleContinue}
           disabled={!isFormValid}
         >
           <Text
@@ -409,13 +388,6 @@ export default function ProductDetailScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#121212" },
-  centerState: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  stateText: { color: "#CCCCCC", fontSize: 14, textAlign: "center" },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
