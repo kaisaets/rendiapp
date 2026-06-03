@@ -1,8 +1,26 @@
 import { Kasutaja, Rentimine, Suuline } from "../../model/sequelize/index.js";
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const kasutajaIdParam = searchParams.get("kasutaja_id");
+
+    let where;
+    if (kasutajaIdParam !== null) {
+      const kasutajaId = Number.parseInt(kasutajaIdParam, 10);
+
+      if (Number.isNaN(kasutajaId) || kasutajaId <= 0) {
+        return Response.json(
+          { error: "Vigane kasutaja_id query parameeter." },
+          { status: 400 },
+        );
+      }
+
+      where = { kasutaja_id: kasutajaId };
+    }
+
     const rentimised = await Rentimine.findAll({
+      where,
       include: [
         {
           model: Kasutaja,

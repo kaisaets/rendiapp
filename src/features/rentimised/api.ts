@@ -14,6 +14,14 @@ export function getRentimised() {
   return apiRequest<Rentimine[]>("/rentimised");
 }
 
+export function getRentimisedByKasutajaId(kasutajaId: number | string) {
+  const query = new URLSearchParams({
+    kasutaja_id: String(kasutajaId),
+  }).toString();
+
+  return apiRequest<Rentimine[]>(`/rentimised?${query}`);
+}
+
 export function getRentimineById(id: number | string) {
   return apiRequest<Rentimine>(`/rentimised/${id}`);
 }

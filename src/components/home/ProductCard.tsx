@@ -1,7 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import type { Product } from "./homeData";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ImageSourcePropType,
+} from "react-native";
+
+export type Product = {
+  id: string;
+  title: string;
+  kirjeldus: string;
+  lisainfo?: string;
+  lisainfo2?: string;
+  sobivusTitle?: string;
+  sobivusItems?: string[];
+  detailListStyle?: "bullet" | "plain";
+  infoLines?: string[];
+  rating: number;
+  image: ImageSourcePropType;
+};
 
 type ProductCardProps = {
   product: Product;
@@ -61,7 +81,7 @@ export function ProductCard({ product }: ProductCardProps) {
             style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
             onPress={() =>
               router.push({
-                pathname: "/pages/[id]",
+                pathname: "/product/[id]",
                 params: { id: product.id },
               })
             }
