@@ -73,23 +73,22 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-      {/* HEADER ROW */}
-      <View style={styles.headerRow}>
+      <View style={styles.headerBanner}>
         <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.headerButton}
+          style={styles.headerBack}
+          onPress={() => router.push("/")}
         >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={28} color="#0A0A0A" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Suulise andmed</Text>
+        <Text style={styles.headerLabel}>SUULISE ANDMED</Text>
         <TouchableOpacity
+          style={styles.headerFavorite}
           onPress={() => setIsFavorite(!isFavorite)}
-          style={styles.headerButton}
         >
           <Ionicons
             name={isFavorite ? "heart" : "heart-outline"}
             size={24}
-            color={isFavorite ? "#CC9D36" : "#FFFFFF"}
+            color={isFavorite ? "#f7058a" : "#0A0A0A"}
           />
         </TouchableOpacity>
       </View>
@@ -342,21 +341,43 @@ export default function ProductDetailScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#121212" },
-  headerRow: {
-    flexDirection: "row",
+  headerBanner: {
+    backgroundColor: "#C89B3C",
+    marginTop: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    minHeight: 64,
+    width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: "#222222",
   },
-  headerButton: { padding: 4, width: 40 },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "600",
-    flex: 1,
+  headerBack: {
+    position: "absolute",
+    left: 12,
+    width: 48,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
+  headerFavorite: {
+    position: "absolute",
+    right: 12,
+    width: 48,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
+  headerLabel: {
+    color: "#0A0A0A",
+    fontSize: 24,
+    fontWeight: "700",
+    textTransform: "uppercase",
     textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.35)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollContainer: { padding: 16, paddingBottom: 150 }, // Increased bottom padding to avoid hiding content under summary row
   imageCard: {

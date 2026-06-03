@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
-    width: "100%",
   },
   iconWrap: {
     width: 110,
@@ -103,7 +102,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    minWidth: 0,
   },
   titleRow: {
     flexDirection: "row",
