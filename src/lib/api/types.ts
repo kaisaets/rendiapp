@@ -39,6 +39,7 @@ export interface KasutajaRentimine {
   staatus?: string | null;
   total_price?: string | number | null;
   paid?: boolean | null;
+  aadress?: string | null;
   suuline?: Suuline | null;
 }
 
@@ -55,6 +56,7 @@ export interface Rentimine {
   staatus?: string | null;
   total_price?: string | number | null;
   paid?: boolean | null;
+  aadress?: string | null;
   kasutaja?: Kasutaja | null;
   suuline?: Suuline | null;
 }
@@ -67,6 +69,7 @@ export interface CreateRentimineInput {
   staatus?: string | null;
   total_price?: number | null;
   paid?: boolean | null;
+  aadress?: string | null;
 }
 
 export interface Suuline {

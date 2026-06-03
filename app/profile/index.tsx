@@ -1,18 +1,18 @@
-import Navbar from "@/src/components/Navbar";
-import { syncAuthenticatedKasutaja } from "@/src/features/kasutajad/api";
 import { useAuth, useUser } from "@clerk/expo";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Navbar from "../../src/components/Navbar";
+import { syncAuthenticatedKasutaja } from "../../src/features/kasutajad/api";
 
 export default function ProfileScreen() {
   const { isLoaded, isSignedIn, signOut } = useAuth();

@@ -16,6 +16,7 @@ export function OrdersRow({ order, onPress }: OrdersRowProps) {
       <View style={styles.info}>
         <Text style={styles.title}>{order.title}</Text>
         <Text style={styles.customer}>{order.customer}</Text>
+        <Text style={styles.address}>{order.address}</Text>
         <Text style={styles.status}>{order.status}</Text>
       </View>
 
@@ -50,6 +51,12 @@ const styles = StyleSheet.create({
   },
   customer: {
     color: "#999999",
+    fontSize: 11,
+    fontFamily: "QuicksandRegular",
+    marginBottom: 2,
+  },
+  address: {
+    color: "#B6B6B6",
     fontSize: 11,
     fontFamily: "QuicksandRegular",
     marginBottom: 2,

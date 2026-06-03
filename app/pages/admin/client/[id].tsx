@@ -38,6 +38,7 @@ function toClientRental(rentimine: KasutajaRentimine): ClientRental {
     id: String(rentimine.id),
     title,
     subtitle,
+    address: rentimine.aadress?.trim() || "Aadress puudub",
     image: require("@/assets/images/HugoL_angle-nobg.png"),
   };
 }

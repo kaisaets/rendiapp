@@ -58,7 +58,7 @@ export function mapRentimineToAdminOrder(rentimine: Rentimine): AdminOrderView {
     customer: customerName,
     email: rentimine.kasutaja?.email || "-",
     phone: rentimine.kasutaja?.telefon || "Telefon puudub",
-    address: "Aadress puudub",
+    address: rentimine.aadress?.trim() || "Aadress puudub",
     status: getRentimineStatusLabel(rentimine),
     startDate: formatDateEt(rentimine.algus_kuupaev),
     returnDate: formatDateEt(rentimine.lopp_kuupaev),

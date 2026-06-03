@@ -50,6 +50,10 @@ export function defineRentimineModel(sequelize) {
         type: DataTypes.BOOLEAN,
         allowNull: true,
       },
+      aadress: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
     },
     {
       tableName: "rentimised",

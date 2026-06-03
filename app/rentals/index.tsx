@@ -1,9 +1,11 @@
 import Navbar from "@/src/components/Navbar";
+import { syncAuthenticatedKasutaja } from "@/src/features/kasutajad/api";
 import { getRentimisedByKasutajaId } from "@/src/features/rentimised/api";
 import { isCompletedRentimine } from "@/src/features/rentimised/status";
 import type { Rentimine } from "@/src/lib/api/types";
+import { useAuth, useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
     Image,
@@ -33,9 +35,14 @@ function getDaysLeft(endDate?: string | null) {
 }
 
 function mapRentimineToCard(item: Rentimine) {
+  const title = [item.suuline?.nimi, item.suuline?.ring_type]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
   return {
     rental_id: item.id,
-    name: item.suuline?.nimi || `Toode #${item.suuline_id}`,
+    name: title || `Toode #${item.suuline_id}`,
     local_image: FALLBACK_IMAGE,
     status: item.staatus || "-",
     end_date: item.lopp_kuupaev || null,
@@ -47,21 +54,28 @@ function mapRentimineToCard(item: Rentimine) {
 export default function MyRentals() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-
-  // TODO: asenda login-süsteemi kasutaja ID-ga, kui auth on lisatud.
-  const currentUserId = Number(process.env.EXPO_PUBLIC_USER_ID || 1);
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const [activeTab, setActiveTab] = useState("rentals");
   const [rentals, setRentals] = useState<Rentimine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const clerkId = user?.id || "";
+  const email = user?.primaryEmailAddress?.emailAddress || "";
+  const fullName = user?.fullName || user?.username || "Kasutaja";
+
   useEffect(() => {
     let isMounted = true;
 
     async function loadRentals() {
-      if (!Number.isFinite(currentUserId) || currentUserId <= 0) {
-        setError("EXPO_PUBLIC_USER_ID on vigane või puudub.");
+      if (!isLoaded || !isSignedIn) {
+        return;
+      }
+
+      if (!clerkId || !email) {
+        setError("Kasutaja andmed puuduvad.");
         setLoading(false);
         return;
       }
@@ -69,7 +83,18 @@ export default function MyRentals() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getRentimisedByKasutajaId(currentUserId);
+
+        const me = await syncAuthenticatedKasutaja({
+          clerk_id: clerkId,
+          email,
+          nimi: fullName,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        const data = await getRentimisedByKasutajaId(me.id);
 
         if (!isMounted) {
           return;
@@ -81,9 +106,9 @@ export default function MyRentals() {
           return;
         }
 
-        setError(
-          e instanceof Error ? e.message : "Rentide laadimine ebaõnnestus.",
-        );
+        const message =
+          e instanceof Error ? e.message : "Rentide laadimine ebaonnestus.";
+        setError(message);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -91,17 +116,25 @@ export default function MyRentals() {
       }
     }
 
-    loadRentals();
+    void loadRentals();
 
     return () => {
       isMounted = false;
     };
-  }, [currentUserId]);
+  }, [isLoaded, isSignedIn, clerkId, email, fullName]);
 
   const cards = useMemo(() => rentals.map(mapRentimineToCard), [rentals]);
 
   const activeRentals = cards.filter((item) => !item.isCompleted);
   const completedRentals = cards.filter((item) => item.isCompleted);
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/sign-in" as any} />;
+  }
 
   const RentalCard = ({ item }: { item: (typeof cards)[number] }) => (
     <TouchableOpacity
@@ -110,7 +143,6 @@ export default function MyRentals() {
       onPress={() => router.push(`/rentals/${item.rental_id}`)}
     >
       <View style={styles.cardImageContainer}>
-        {/* Updated source prop to seamlessly render your local photo asset */}
         <Image
           source={item.local_image}
           style={styles.cardImage}
@@ -121,8 +153,8 @@ export default function MyRentals() {
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.daysText}>
           {item.isCompleted
-            ? "Rendiaeg lõppenud"
-            : `Jäänud ${item.days_left} päeva`}
+            ? "Rendiaeg lappenud"
+            : `Jaanud ${item.days_left} paeva`}
         </Text>
       </View>
       <Ionicons
@@ -133,55 +165,54 @@ export default function MyRentals() {
       />
     </TouchableOpacity>
   );
+
   return (
-    <>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.goldHeader}>
-          <Text style={styles.headerTitle}>MINU RENDID</Text>
-        </View>
-
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {loading ? (
-            <Text style={styles.emptyText}>Laen rendiandmeid...</Text>
-          ) : null}
-          {error ? <Text style={styles.errorText}>Viga: {error}</Text> : null}
-
-          <Text style={styles.sectionHeader}>Aktiivsed</Text>
-          {!loading && activeRentals.length > 0 ? (
-            activeRentals.map((rental) => (
-              <RentalCard key={rental.rental_id} item={rental} />
-            ))
-          ) : !loading ? (
-            <Text style={styles.emptyText}>
-              Sul pole hetkel ühtegi aktiivset renti.
-            </Text>
-          ) : null}
-
-          <Text style={styles.sectionHeader}>Lõpetatud</Text>
-          {!loading && completedRentals.length > 0 ? (
-            completedRentals.map((rental) => (
-              <RentalCard key={rental.rental_id} item={rental} />
-            ))
-          ) : !loading ? (
-            <Text style={styles.emptyText}>Ajalugu on tühi.</Text>
-          ) : null}
-        </ScrollView>
-
-        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.goldHeader}>
+        <Text style={styles.headerTitle}>MINU RENDID</Text>
       </View>
-    </>
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {loading ? (
+          <Text style={styles.emptyText}>Laen rendiandmeid...</Text>
+        ) : null}
+        {error ? <Text style={styles.errorText}>Viga: {error}</Text> : null}
+
+        <Text style={styles.sectionHeader}>Aktiivsed</Text>
+        {!loading && activeRentals.length > 0 ? (
+          activeRentals.map((rental) => (
+            <RentalCard key={rental.rental_id} item={rental} />
+          ))
+        ) : !loading ? (
+          <Text style={styles.emptyText}>
+            Sul pole hetkel uhtegi aktiivset renti.
+          </Text>
+        ) : null}
+
+        <Text style={styles.sectionHeader}>Lõpetatud</Text>
+        {!loading && completedRentals.length > 0 ? (
+          completedRentals.map((rental) => (
+            <RentalCard key={rental.rental_id} item={rental} />
+          ))
+        ) : !loading ? (
+          <Text style={styles.emptyText}>Ajalugu on tuhi.</Text>
+        ) : null}
+      </ScrollView>
+
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000000" },
+  container: { flex: 1, width: "100%", backgroundColor: "#000000" },
 
   goldHeader: {
     backgroundColor: "#CC9D36",
-    height: 56,
+    minHeight: 56,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -215,59 +246,31 @@ const styles = StyleSheet.create({
 
   rentalCard: {
     flexDirection: "row",
+    flexWrap: "wrap",
     backgroundColor: "#0A0A0A",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#FFFFFF",
-    height: 90,
+    minHeight: 90,
+    padding: 12,
     alignItems: "center",
     marginBottom: 16,
     overflow: "hidden",
   },
   cardImageContainer: {
-    width: 100,
-    height: "100%",
+    width: 90,
+    minWidth: 90,
+    height: 90,
     backgroundColor: "#000000",
     justifyContent: "center",
     alignItems: "center",
     borderRightWidth: 1,
     borderRightColor: "#FFFFFF",
+    marginRight: 12,
   },
   cardImage: { width: "85%", height: "85%" },
   cardInfoContainer: { flex: 1, paddingLeft: 14, justifyContent: "center" },
   productName: { color: "#FFFFFF", fontSize: 14, fontWeight: "bold" },
   daysText: { color: "#8E8E93", fontSize: 12, marginTop: 12 },
   arrowIcon: { paddingHorizontal: 14 },
-
-  bottomNavWrapper: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "transparent",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  navBarContainer: {
-    flexDirection: "row",
-    backgroundColor: "#846226",
-    width: "100%",
-    height: 64,
-    borderRadius: 32,
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "space-around",
-    elevation: 5,
-  },
-  navTab: {
-    flex: 1,
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    opacity: 0.7,
-  },
-  activeNavTab: {
-    backgroundColor: "#CC9D36",
-    opacity: 1,
-  },
 });

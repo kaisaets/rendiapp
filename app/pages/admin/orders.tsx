@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,8 +16,8 @@ import { OrdersRow } from "@/src/components/admin/orders/OrdersRow";
 import { OrdersSearchBar } from "@/src/components/admin/orders/OrdersSearchBar";
 import { getRentimised } from "@/src/features/rentimised/api";
 import {
-  mapRentimineToAdminOrder,
-  type AdminOrderView,
+    mapRentimineToAdminOrder,
+    type AdminOrderView,
 } from "@/src/features/rentimised/orderFormat";
 
 export default function OrdersPage() {
@@ -73,6 +73,7 @@ export default function OrdersPage() {
       (order) =>
         order.title.toLowerCase().includes(normalized) ||
         order.customer.toLowerCase().includes(normalized) ||
+        order.address.toLowerCase().includes(normalized) ||
         order.status.toLowerCase().includes(normalized),
     );
   }, [orders, search]);

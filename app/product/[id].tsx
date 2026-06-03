@@ -1,7 +1,9 @@
 import HugoL_angle_nobg from "@/assets/images/HugoL_angle-nobg.png";
+import { getSuulineById } from "@/src/features/suulised/api";
+import type { Suuline } from "@/src/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -18,7 +20,6 @@ const { width } = Dimensions.get("window");
 
 export default function ProductDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const productId = Array.isArray(id) ? id[0] : id;

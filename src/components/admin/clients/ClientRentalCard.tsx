@@ -20,6 +20,7 @@ export function ClientRentalCard({ rental, onPress }: ClientRentalCardProps) {
       <View style={styles.infoWrap}>
         <Text style={styles.title}>{rental.title}</Text>
         <Text style={styles.subtitle}>{rental.subtitle}</Text>
+        <Text style={styles.address}>{rental.address || "Aadress puudub"}</Text>
       </View>
 
       <MaterialCommunityIcons name="chevron-right" size={18} color="#8A8A8A" />
@@ -54,6 +55,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: "#7C7C7C",
+    fontSize: 10,
+    fontFamily: "QuicksandRegular",
+  },
+  address: {
+    color: "#A0A0A0",
     fontSize: 10,
     fontFamily: "QuicksandRegular",
   },
