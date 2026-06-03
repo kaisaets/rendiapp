@@ -4,6 +4,7 @@ import { useAuth, useUser } from "@clerk/expo";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     ScrollView,
     StyleSheet,
     Text,
@@ -24,14 +25,6 @@ export default function ProfileScreen() {
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
 
-  if (!isLoaded) {
-    return null;
-  }
-
-  if (!isSignedIn) {
-    return <Redirect href={"/sign-in" as any} />;
-  }
-
   const fullName = user?.fullName || user?.username || "Kasutaja";
   const email = user?.primaryEmailAddress?.emailAddress || "";
   const displayEmail = email || "Email puudub";
@@ -41,7 +34,7 @@ export default function ProfileScreen() {
     let isMounted = true;
 
     async function loadProfile() {
-      if (!clerkId || !email) {
+      if (!clerkId || !email || isSigningOut) {
         return;
       }
 
@@ -59,15 +52,12 @@ export default function ProfileScreen() {
 
         setTelefon(me.telefon || "");
       } catch (error) {
-        if (!isMounted) {
+        if (!isMounted || isSigningOut) {
           return;
         }
 
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Profiili laadimine ebaõnnestus.";
-        setProfileError(message);
+        // Avoid surfacing transient background sync errors to end users.
+        console.error("Profiili laadimine ebaõnnestus:", error);
       }
     }
 
@@ -76,17 +66,26 @@ export default function ProfileScreen() {
     return () => {
       isMounted = false;
     };
-  }, [clerkId, email, fullName]);
+  }, [clerkId, email, fullName, isSigningOut]);
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/sign-in" as any} />;
+  }
 
   const handleSignOut = async () => {
     if (isSigningOut) {
       return;
     }
 
+    setProfileError(null);
+    setProfileMessage(null);
     setIsSigningOut(true);
     try {
       await signOut();
-      router.replace("/sign-in" as any);
     } catch (error) {
       console.error("Väljalogimine ebaõnnestus:", error);
       setIsSigningOut(false);
@@ -113,11 +112,8 @@ export default function ProfileScreen() {
       setTelefon(updated.telefon || "");
       setProfileMessage("Telefon uuendatud.");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Profiili salvestamine ebaõnnestus.";
-      setProfileError(message);
+      console.error("Profiili salvestamine ebaõnnestus:", error);
+      setProfileError("Salvestamine ebaõnnestus. Proovi uuesti.");
     } finally {
       setIsSavingProfile(false);
     }
@@ -202,6 +198,13 @@ export default function ProfileScreen() {
       </ScrollView>
 
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {isSigningOut ? (
+        <View style={styles.signOutOverlay}>
+          <ActivityIndicator size="small" color="#CC9D36" />
+          <Text style={styles.signOutOverlayText}>Logitakse välja...</Text>
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -346,5 +349,18 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "700",
+  },
+  signOutOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(10, 10, 10, 0.92)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    zIndex: 20,
+  },
+  signOutOverlayText: {
+    color: "#F0F0F0",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
