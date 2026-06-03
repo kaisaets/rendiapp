@@ -1,0 +1,33 @@
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Native
+.kotlin/
+/ios
+/android
+
+# Environment
+.env*.local
+.env
+
+# Git
+.git/
+.gitignore
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# Docker
+dockerfile.dev
+Dockerfile
+.dockerignore
+
+# TypeScript
+*.tsbuildinfo
