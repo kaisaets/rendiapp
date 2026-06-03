@@ -83,11 +83,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#3E2A0D",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
+    width: "100%",
   },
   iconWrap: {
-    width: 160,
-    height: 160,
+    width: 110,
+    height: 110,
+    minWidth: 110,
+    minHeight: 110,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#0A0A0A",
@@ -99,6 +103,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    minWidth: 0,
   },
   titleRow: {
     flexDirection: "row",

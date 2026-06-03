@@ -86,7 +86,7 @@ export default function Order({ onBack }: AddProductHeaderProps) {
     }
 
     router.push({
-      pathname: "/pages/order_success",
+      pathname: "/pages/rental_success",
       params: {
         id,
         duration,

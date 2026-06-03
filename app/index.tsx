@@ -1,4 +1,5 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   ScrollView,
@@ -8,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
 import Navbar from "@/src/components/Navbar";
 import { BottomTabs } from "@/src/components/home/BottomTabs";
@@ -69,8 +69,8 @@ export default function Index() {
             <View style={styles.listWrap}>
               {products.map((product) => (
                 // Wrap the card in a pressable link container pointing to the dynamic path
-                <TouchableOpacity 
-                  key={product.id} 
+                <TouchableOpacity
+                  key={product.id}
                   activeOpacity={0.9}
                   onPress={() => router.push(`/product/${product.id}`)}
                 >
@@ -93,8 +93,10 @@ const styles = StyleSheet.create({
   },
   page: {
     flex: 1,
+    width: "100%",
   },
   content: {
+    flexGrow: 1,
     paddingTop: 8,
     paddingBottom: 90,
   },

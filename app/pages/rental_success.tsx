@@ -29,7 +29,7 @@ export default function RentalSuccess() {
           color="#C89B3C"
           style={styles.icon}
         />
-        <Text style={styles.title}>TÄNAN TELLIMUSE EEST</Text>
+        <Text style={styles.title}>TÄNAME TELLIMUSE EEST</Text>
         <Text style={styles.subtitle}>OLEME TÄNULIKUD, ET VALISITE FAGER SUULISED</Text>
         <Pressable style={styles.button} onPress={() => router.push("/")}>
           <Text style={styles.buttonText}>TAGASI AVALEHELE</Text>

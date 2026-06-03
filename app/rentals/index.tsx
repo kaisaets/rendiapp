@@ -93,11 +93,11 @@ export default function MyRentals() {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000000' },
+    container: { flex: 1, width: '100%', backgroundColor: '#000000' },
 
     goldHeader: {
         backgroundColor: '#CC9D36',
-        height: 56,
+        minHeight: 56,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -114,23 +114,27 @@ const styles = StyleSheet.create({
 
     rentalCard: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         backgroundColor: '#0A0A0A',
         borderRadius: 14,
         borderWidth: 1,
         borderColor: '#FFFFFF',
-        height: 90,
+        minHeight: 90,
+        padding: 12,
         alignItems: 'center',
         marginBottom: 16,
         overflow: 'hidden'
     },
     cardImageContainer: {
-        width: 100,
-        height: '100%',
+        width: 90,
+        minWidth: 90,
+        height: 90,
         backgroundColor: '#000000',
         justifyContent: 'center',
         alignItems: 'center',
         borderRightWidth: 1,
-        borderRightColor: '#FFFFFF'
+        borderRightColor: '#FFFFFF',
+        marginRight: 12
     },
     cardImage: { width: '85%', height: '85%' },
     cardInfoContainer: { flex: 1, paddingLeft: 14, justifyContent: 'center' },
