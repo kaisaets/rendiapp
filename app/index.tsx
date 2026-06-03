@@ -1,4 +1,5 @@
-import { useRouter } from "expo-router";
+import { useAuth } from "@clerk/expo";
+import { Redirect, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -50,6 +51,7 @@ function mapSuulineToProduct(suuline: Suuline, index: number): Product {
 }
 
 export default function Index() {
+  const { isLoaded, isSignedIn } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
   const [productsView, setProductsView] = useState<"popular" | "all">(
     "popular",
@@ -114,6 +116,14 @@ export default function Index() {
 
   const visibleProducts =
     productsView === "all" ? products : products.slice(0, 3);
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/sign-in" as any} />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
