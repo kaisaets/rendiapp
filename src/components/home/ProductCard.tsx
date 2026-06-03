@@ -62,9 +62,9 @@ export function ProductCard({ product }: ProductCardProps) {
               </View>
             ))}
           </View>
-        ) : (
+        ) : product.kirjeldus ? (
           <Text style={styles.subtitle}>{product.kirjeldus}</Text>
-        )}
+        ) : null}
 
         {infoLines.map((line, index) => (
           <Text key={`${product.id}-info-${index}`} style={styles.location}>
@@ -73,10 +73,6 @@ export function ProductCard({ product }: ProductCardProps) {
         ))}
 
         <View style={styles.bottomRow}>
-          <View style={styles.ratingWrap}>
-            <Ionicons name="star" size={14} color="#E0B24F" />
-            <Text style={styles.ratingText}>{product.rating.toFixed(1)}</Text>
-          </View>
           <Pressable
             style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
             onPress={() =>
@@ -172,17 +168,7 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-  },
-  ratingWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  ratingText: {
-    color: "#F5F5F5",
-    fontWeight: "700",
-    fontSize: 12,
+    justifyContent: "flex-end",
   },
   readMore: {
     color: "#C49E55",

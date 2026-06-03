@@ -39,7 +39,7 @@ function mapSuulineToProduct(suuline: Suuline, index: number): Product {
   return {
     id: String(suuline.id),
     title: title || `Suuline #${suuline.id}`,
-    kirjeldus: suuline.kirjeldus?.trim() || "Kirjeldus puudub.",
+    kirjeldus: suuline.kirjeldus?.trim() || "",
     infoLines: [
       suuline.suurus ? `Suurus: ${suuline.suurus} cm` : "Suurus: -",
       dayPrice > 0 ? `Hind: ${dayPrice.toFixed(2)} €/päev` : "Hind: -",

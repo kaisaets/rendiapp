@@ -16,6 +16,20 @@ export interface CreateKasutajaInput {
   telefon?: string | null;
 }
 
+export interface SyncAuthenticatedKasutajaInput {
+  clerk_id: string;
+  email: string;
+  nimi?: string | null;
+  google_id?: string | null;
+  telefon?: string | null;
+}
+
+export interface UpdateKasutajaProfileInput {
+  clerk_id: string;
+  nimi?: string | null;
+  telefon?: string | null;
+}
+
 export interface KasutajaRentimine {
   id: number;
   kasutaja_id: number;

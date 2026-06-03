@@ -9,6 +9,8 @@ import type {
     CreateKasutajaInput,
     Kasutaja,
     KasutajaDetail,
+    SyncAuthenticatedKasutajaInput,
+    UpdateKasutajaProfileInput,
 } from "@/src/lib/api/types";
 
 export function getKasutajad() {
@@ -22,6 +24,15 @@ export function createKasutaja(input: CreateKasutajaInput) {
   });
 }
 
+export function syncAuthenticatedKasutaja(
+  input: SyncAuthenticatedKasutajaInput,
+) {
+  return apiRequest<Kasutaja>("/kasutajad-sync", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function getKasutajaDetail(id: number) {
   return apiRequest<KasutajaDetail>(`/kasutajad/${id}`);
 }
@@ -29,5 +40,18 @@ export function getKasutajaDetail(id: number) {
 export function deleteKasutaja(id: number) {
   return apiRequest<{ success: boolean }>(`/kasutajad/${id}`, {
     method: "DELETE",
+  });
+}
+
+export function getKasutajaMeByClerkId(clerkId: string) {
+  return apiRequest<Kasutaja>(
+    `/kasutajad/me?clerk_id=${encodeURIComponent(clerkId)}`,
+  );
+}
+
+export function updateKasutajaMeByClerkId(input: UpdateKasutajaProfileInput) {
+  return apiRequest<Kasutaja>("/kasutajad/me", {
+    method: "PATCH",
+    body: JSON.stringify(input),
   });
 }

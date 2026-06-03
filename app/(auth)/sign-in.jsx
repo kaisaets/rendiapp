@@ -1,5 +1,6 @@
-import { useSSO } from "@clerk/expo";
+import { useAuth, useSSO } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
+import { Redirect } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import {
@@ -11,9 +12,8 @@ import {
 } from "react-native";
 import GoogleSignInButton from "../../src/components/GoogleSignInButton";
 
-WebBrowser.maybeCompleteAuthSession();
-
 export default function SignInScreen() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { startSSOFlow } = useSSO();
   const [viga, setViga] = useState(null);
 
@@ -27,9 +27,16 @@ export default function SignInScreen() {
   }, []);
 
   const handleGoogleSignIn = async () => {
+    if (isSignedIn) {
+      return;
+    }
+
     setViga(null);
     try {
-      const redirectUrl = AuthSession.makeRedirectUri();
+      const redirectUrl =
+        Platform.OS === "web"
+          ? `${window.location.origin}/sign-in`
+          : AuthSession.makeRedirectUri();
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
         redirectUrl,
@@ -42,6 +49,14 @@ export default function SignInScreen() {
       setViga("Sisselogimine ebaõnnestus. Proovi uuesti.");
     }
   };
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (isSignedIn) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <ImageBackground

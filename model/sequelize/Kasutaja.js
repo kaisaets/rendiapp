@@ -14,6 +14,11 @@ export function defineKasutajaModel(sequelize) {
         allowNull: true,
         unique: true,
       },
+      clerk_id: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        unique: true,
+      },
       email: {
         type: DataTypes.STRING(100),
         allowNull: false,
