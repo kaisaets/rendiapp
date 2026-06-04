@@ -1,5 +1,9 @@
 import { apiRequest } from "@/src/lib/api/http";
-import type { CreateRentimineInput, Rentimine } from "@/src/lib/api/types";
+import type {
+  CreateRentimineInput,
+  Rentimine,
+  UpdateRentimineInput,
+} from "@/src/lib/api/types";
 
 export async function deleteAllRentimised() {
   const rentimised = await getRentimised();
@@ -29,6 +33,16 @@ export function getRentimineById(id: number | string) {
 export function createRentimine(input: CreateRentimineInput) {
   return apiRequest<Rentimine>("/rentimised", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateRentimine(
+  id: number | string,
+  input: UpdateRentimineInput,
+) {
+  return apiRequest<Rentimine>(`/rentimised/${id}`, {
+    method: "PUT",
     body: JSON.stringify(input),
   });
 }

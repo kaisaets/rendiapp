@@ -72,6 +72,14 @@ export interface CreateRentimineInput {
   aadress?: string | null;
 }
 
+export interface UpdateRentimineInput {
+  staatus?: string | null;
+  lopp_kuupaev?: string | null;
+  total_price?: number | null;
+  paid?: boolean | null;
+  aadress?: string | null;
+}
+
 export interface Suuline {
   id: number;
   nimi: string;

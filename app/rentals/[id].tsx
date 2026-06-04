@@ -2,6 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
     Dimensions,
     Image,
     ScrollView,
@@ -11,42 +12,117 @@ import {
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  getRentimineById,
+  updateRentimine,
+} from "@/src/features/rentimised/api";
+import {
+  isBoughtRentimine,
+  isCompletedRentimine,
+} from "@/src/features/rentimised/status";
+import type { Rentimine } from "@/src/lib/api/types";
 
 const { width } = Dimensions.get("window");
 
 export default function MyBits() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { id } = useLocalSearchParams(); // Captures the rental_id from the clicked card
-  const [rentalItem, setRentalItem] = useState<any>(null);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const [rentalItem, setRentalItem] = useState<Rentimine | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    if (id === "99") {
-      setRentalItem({
-        rental_id: 99,
-        name: "Kolmeosaline suuline",
-        local_image: require("@/assets/images/HugoL_angle-nobg.png"),
-        status: "müüdud", // Maps to 'müüdud' (Välja ostetud) or 'tagastatud'
-        address: "Maakond, vald, linn, tänav, number",
-        card_mask: "**** **** **** 1234",
-      });
-    } else {
-      setRentalItem({
-        rental_id: 101,
-        name: "HUGO liikuva rõngaga",
-        local_image: require("@/assets/images/HugoL_angle-nobg.png"),
-        status: "rendis",
-        days_left: 8,
-      });
+    let isMounted = true;
+
+    async function loadRental() {
+      if (!id) {
+        if (isMounted) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await getRentimineById(id);
+        if (!isMounted) {
+          return;
+        }
+
+        setRentalItem(data);
+      } catch {
+        if (isMounted) {
+          Alert.alert("Viga", "Rendi andmete laadimine ebaõnnestus.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
+
+    void loadRental();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
-  if (!rentalItem) return null;
-  const isCompleted =
-    rentalItem.status === "müüdud" || rentalItem.status === "tagastatud";
+  if (loading || !rentalItem) {
+    return null;
+  }
 
-  const handleBuyout = () => alert("Toode välja ostetud!");
-  const handleReturn = () => router.push("/rentals/return");
+  const productName = [rentalItem.suuline?.nimi, rentalItem.suuline?.ring_type]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const resolvedName = productName || `Toode #${rentalItem.suuline_id}`;
+  const statusText = String(rentalItem.staatus ?? "").trim();
+  const isBought = isBoughtRentimine(rentalItem);
+  const isCompleted = isCompletedRentimine(rentalItem);
+
+  const handleBuyout = async () => {
+    if (isUpdating) {
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      const updated = await updateRentimine(rentalItem.id, {
+        staatus: "müüdud",
+        lopp_kuupaev: new Date().toISOString(),
+        paid: true,
+      });
+      setRentalItem(updated);
+      Alert.alert("Tehtud", "Toode on märgitud välja ostetuks.");
+    } catch {
+      Alert.alert("Viga", "Väljaostu salvestamine ebaõnnestus.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleReturn = async () => {
+    if (isUpdating) {
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      const updated = await updateRentimine(rentalItem.id, {
+        staatus: "tagastatud",
+        lopp_kuupaev: new Date().toISOString(),
+      });
+      setRentalItem(updated);
+      Alert.alert("Tehtud", "Rentimine on märgitud tagastatuks.");
+    } catch {
+      Alert.alert("Viga", "Tagastuse salvestamine ebaõnnestus.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleDownloadReceipt = () =>
     alert("Kviitungi allalaadimine käivitatud...");
 
@@ -75,16 +151,16 @@ export default function MyBits() {
       <View style={styles.content}>
         <View style={styles.goldBorderImageCard}>
           <Image
-            source={rentalItem.local_image}
+            source={require("@/assets/images/HugoL_angle-nobg.png")}
             style={styles.productImage}
             resizeMode="contain"
           />
         </View>
 
-        <Text style={styles.mainTitle}>{rentalItem.name}</Text>
+        <Text style={styles.mainTitle}>{resolvedName}</Text>
         {isCompleted && (
           <Text style={styles.completedStatusBadge}>
-            {rentalItem.status === "müüdud" ? "Välja ostetud" : "Tagastatud"}
+            {isBought ? "Välja ostetud" : "Tagastatud"}
           </Text>
         )}
         {!isCompleted ? (
@@ -93,7 +169,7 @@ export default function MyBits() {
               <Text style={styles.statusTitleText}>Prooviperiood käib</Text>
               <Text
                 style={styles.daysCounterText}
-              >{`Jäänud ${rentalItem.days_left} päeva`}</Text>
+              >{`Staatus: ${statusText || "Aktiivne"}`}</Text>
             </View>
 
             <View style={styles.buttonStack}>
@@ -101,6 +177,7 @@ export default function MyBits() {
                 style={styles.actionButton}
                 activeOpacity={0.7}
                 onPress={handleBuyout}
+                disabled={isUpdating}
               >
                 <Text style={styles.buttonText}>Sobib - osta välja!</Text>
               </TouchableOpacity>
@@ -108,6 +185,7 @@ export default function MyBits() {
                 style={styles.actionButton}
                 activeOpacity={0.7}
                 onPress={handleReturn}
+                disabled={isUpdating}
               >
                 <Text style={styles.buttonText}>Ei sobi - tagasta!</Text>
               </TouchableOpacity>
@@ -119,7 +197,7 @@ export default function MyBits() {
               <Text style={styles.metaDataLabel}>Tarneaadress</Text>
               <View style={styles.metaDataBox}>
                 <Text style={styles.metaDataBoxValueText}>
-                  {rentalItem.address}
+                  {rentalItem.aadress || "Aadress puudub"}
                 </Text>
               </View>
             </View>
@@ -134,7 +212,7 @@ export default function MyBits() {
                   style={{ marginRight: 8 }}
                 />
                 <Text style={styles.metaDataBoxValueText}>
-                  {rentalItem.card_mask}
+                  **** **** **** 1234
                 </Text>
               </View>
             </View>

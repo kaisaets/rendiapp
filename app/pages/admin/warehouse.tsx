@@ -17,6 +17,7 @@ import { WarehouseAddButton } from "@/src/components/admin/warehouse/WarehouseAd
 import { WarehouseHeader } from "@/src/components/admin/warehouse/WarehouseHeader";
 import { WarehouseProductRow } from "@/src/components/admin/warehouse/WarehouseProductRow";
 import { WarehouseSearchBar } from "@/src/components/admin/warehouse/WarehouseSearchBar";
+import { getRentimised } from "@/src/features/rentimised/api";
 import { deleteSuuline, getSuulised } from "@/src/features/suulised/api";
 import type { Suuline } from "@/src/lib/api/types";
 
@@ -27,10 +28,17 @@ export default function WarehousePage() {
   );
   const [search, setSearch] = useState("");
   const [suulised, setSuulised] = useState<Suuline[]>([]);
+  const [statusBySuulineId, setStatusBySuulineId] = useState<
+    Record<number, string>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Suuline | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  function getWarehouseStatus(item: Suuline) {
+    return statusBySuulineId[item.id] || item.staatus || "Saadaval";
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -38,11 +46,40 @@ export default function WarehousePage() {
     async function loadSuulised() {
       try {
         setLoading(true);
-        const data = await getSuulised();
+        const [suulisedData, rentimisedData] = await Promise.all([
+          getSuulised(),
+          getRentimised(),
+        ]);
+
+        const nextStatuses: Record<number, string> = {};
+        for (const rentimine of rentimisedData) {
+          const suulineId = Number(rentimine.suuline_id);
+          if (!Number.isFinite(suulineId)) {
+            continue;
+          }
+
+          const statusText = String(rentimine.staatus ?? "").toLowerCase();
+          if (/m[üu]üdud|v[äa]lja ostetud|sold|bought/i.test(statusText)) {
+            nextStatuses[suulineId] = "Välja ostetud";
+            continue;
+          }
+
+          if (/tagastatud|returned/i.test(statusText)) {
+            if (!nextStatuses[suulineId]) {
+              nextStatuses[suulineId] = "Saadaval";
+            }
+            continue;
+          }
+
+          nextStatuses[suulineId] = "Rentimisel";
+        }
+
         if (!isMounted) {
           return;
         }
-        setSuulised(data);
+
+        setSuulised(suulisedData);
+        setStatusBySuulineId(nextStatuses);
         setError(null);
       } catch {
         if (!isMounted) {
@@ -117,7 +154,7 @@ export default function WarehousePage() {
                 key={String(item.id)}
                 id={String(item.id)}
                 title={item.nimi}
-                category={item.staatus ?? "Ladu"}
+                category={getWarehouseStatus(item)}
                 image={require("@/assets/images/HugoF_angle-nobg.png")}
                 onPress={() =>
                   router.push(`/pages/admin/warehouse/${item.id}` as any)

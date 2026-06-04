@@ -47,6 +47,11 @@ export async function POST(request) {
     const body = await request.json();
     const rentimine = await Rentimine.create(body);
 
+    await Suuline.update(
+      { staatus: "Renditud" },
+      { where: { id: rentimine.suuline_id } },
+    );
+
     const rentimineWithRelations = await Rentimine.findByPk(rentimine.id, {
       include: [
         {

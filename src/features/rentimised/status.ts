@@ -1,6 +1,7 @@
 import type { Rentimine } from "@/src/lib/api/types";
 
 const RETURNED_STATUS_PATTERN = /tagastatud|returned/i;
+const BOUGHT_STATUS_PATTERN = /m[üu]üdud|v[äa]lja ostetud|bought|sold/i;
 
 function hasEndedByDate(rentimine: Rentimine, now = new Date()) {
   if (!rentimine.lopp_kuupaev) {
@@ -16,8 +17,17 @@ export function isReturnedRentimine(rentimine: Rentimine) {
   return RETURNED_STATUS_PATTERN.test(statusText);
 }
 
+export function isBoughtRentimine(rentimine: Rentimine) {
+  const statusText = String(rentimine.staatus ?? "").trim();
+  return BOUGHT_STATUS_PATTERN.test(statusText);
+}
+
 export function isCompletedRentimine(rentimine: Rentimine, now = new Date()) {
-  return isReturnedRentimine(rentimine) || hasEndedByDate(rentimine, now);
+  return (
+    isReturnedRentimine(rentimine) ||
+    isBoughtRentimine(rentimine) ||
+    hasEndedByDate(rentimine, now)
+  );
 }
 
 export function isActiveRentimine(rentimine: Rentimine, now = new Date()) {
@@ -35,6 +45,10 @@ export function getRentimineStatusLabel(
   rentimine: Rentimine,
   now = new Date(),
 ) {
+  if (isBoughtRentimine(rentimine)) {
+    return "Välja ostetud";
+  }
+
   if (isReturnedRentimine(rentimine)) {
     return "Tagastatud";
   }
