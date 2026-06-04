@@ -1,5 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   Pressable,
   SafeAreaView,
@@ -12,7 +12,10 @@ import {
   View,
 } from "react-native";
 
-import { products } from "@/src/components/home/homeData";
+import { syncAuthenticatedKasutaja } from "@/src/features/kasutajad/api";
+import { createRentimine } from "@/src/features/rentimised/api";
+import { getSuulineById } from "@/src/features/suulised/api";
+import { useAuth, useUser } from "@clerk/expo";
 import {
   Quicksand_400Regular,
   Quicksand_500Medium,
@@ -20,8 +23,6 @@ import {
 } from "@expo-google-fonts/quicksand";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
-
-type Product = { id?: string; title?: string; price?: number };
 
 interface AddProductHeaderProps {
   onBack: () => void;
@@ -52,6 +53,8 @@ function SectionRow({
 
 export default function Order({ onBack }: AddProductHeaderProps) {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const { id, duration, rentPrice, size } = useLocalSearchParams<{
     id?: string;
     duration?: string;
@@ -61,9 +64,61 @@ export default function Order({ onBack }: AddProductHeaderProps) {
 
   const [address, setAddress] = useState("");
   const [cardNumber, setCardNumber] = useState("");
+  const [productTitle, setProductTitle] = useState("");
+  const [productLoading, setProductLoading] = useState(false);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const product: Product | undefined = products.find((item) => item.id === id);
-  const productTitle = product?.title ?? "";
+  const clerkId = user?.id || "";
+  const email = user?.primaryEmailAddress?.emailAddress || "";
+  const fullName = user?.fullName || user?.username || "Kasutaja";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProduct() {
+      if (!id) {
+        setProductTitle("");
+        return;
+      }
+
+      const numericId = Number(id);
+      if (!Number.isFinite(numericId)) {
+        setProductTitle(`Toode #${id}`);
+        return;
+      }
+
+      try {
+        setProductLoading(true);
+        const suuline = await getSuulineById(numericId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const resolvedTitle = [suuline.nimi, suuline.ring_type]
+          .filter(Boolean)
+          .join(" ")
+          .trim();
+        setProductTitle(resolvedTitle || `Toode #${numericId}`);
+      } catch {
+        if (isMounted) {
+          setProductTitle(`Toode #${numericId}`);
+        }
+      } finally {
+        if (isMounted) {
+          setProductLoading(false);
+        }
+      }
+    }
+
+    loadProduct();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
   const rentPeriod = duration ?? "";
   const rentValue = rentPrice ? `€${Number(rentPrice).toFixed(2)}` : "";
   const sizeChoice = size ?? "";
@@ -73,6 +128,7 @@ export default function Order({ onBack }: AddProductHeaderProps) {
     : "";
 
   const isOrderReady =
+    !productLoading &&
     productTitle.length > 0 &&
     rentPeriod.length > 0 &&
     rentValue.length > 0 &&
@@ -80,22 +136,66 @@ export default function Order({ onBack }: AddProductHeaderProps) {
     address.trim().length > 0 &&
     cardNumber.trim().length >= 4;
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isOrderReady) {
       return;
     }
 
-    router.push({
-      pathname: "/pages/rental_success",
-      params: {
-        id,
-        duration,
-        rentPrice,
-        size,
-        address,
-        cardNumber,
-      },
-    });
+    if (!id || !clerkId || !email) {
+      setSubmitError("Kasutaja voi toote andmed puuduvad.");
+      return;
+    }
+
+    const suulineId = Number(id);
+    const dailyPrice = Number(rentPrice);
+    if (!Number.isFinite(suulineId) || !Number.isFinite(dailyPrice)) {
+      setSubmitError("Tellimuse andmed on vigased.");
+      return;
+    }
+
+    const rentalDays = rentPeriod === "2 nädalat" ? 14 : 7;
+    const algusDate = new Date();
+    const loppDate = new Date(algusDate);
+    loppDate.setDate(loppDate.getDate() + rentalDays);
+
+    try {
+      setIsSubmittingOrder(true);
+      setSubmitError(null);
+
+      const me = await syncAuthenticatedKasutaja({
+        clerk_id: clerkId,
+        email,
+        nimi: fullName,
+      });
+
+      await createRentimine({
+        kasutaja_id: me.id,
+        suuline_id: suulineId,
+        algus_kuupaev: algusDate.toISOString(),
+        lopp_kuupaev: loppDate.toISOString(),
+        staatus: "rendis",
+        total_price: Number((dailyPrice * rentalDays).toFixed(2)),
+        paid: true,
+        aadress: address.trim(),
+      });
+
+      router.push({
+        pathname: "/pages/rental_success",
+        params: {
+          id,
+          duration,
+          rentPrice,
+          size,
+          address,
+          cardNumber,
+        },
+      });
+    } catch (error) {
+      console.error("Rentimise loomine ebaonnestus:", error);
+      setSubmitError("Tellimuse salvestamine ebaonnestus. Proovi uuesti.");
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   // static layout — no params required
@@ -107,6 +207,14 @@ export default function Order({ onBack }: AddProductHeaderProps) {
 
   if (!fontsLoaded) {
     return null;
+  }
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/sign-in" as any} />;
   }
 
   return (
@@ -142,7 +250,9 @@ export default function Order({ onBack }: AddProductHeaderProps) {
 
         <View style={styles.innerContent}>
           <View style={styles.card}>
-            <SectionTitle title={productTitle} />
+            <SectionTitle
+              title={productLoading ? "Laen toodet..." : productTitle}
+            />
             <Text style={styles.productSubtitle}>
               {sizeChoice && `Suurus: ${sizeChoice}`}
             </Text>
@@ -188,12 +298,17 @@ export default function Order({ onBack }: AddProductHeaderProps) {
       </ScrollView>
 
       <View style={styles.footer}>
+        {submitError ? (
+          <Text style={styles.submitErrorText}>{submitError}</Text>
+        ) : null}
         <Pressable
           style={[styles.primaryButton, !isOrderReady && styles.disabledButton]}
           onPress={handleCheckout}
-          disabled={!isOrderReady}
+          disabled={!isOrderReady || isSubmittingOrder}
         >
-          <Text style={styles.primaryButtonText}>Rendi toode</Text>
+          <Text style={styles.primaryButtonText}>
+            {isSubmittingOrder ? "Salvestan..." : "Rendi toode"}
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -349,6 +464,11 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#444444",
+  },
+  submitErrorText: {
+    color: "#E99292",
+    marginBottom: 8,
+    fontSize: 13,
   },
   primaryButtonText: {
     color: "#0A0A0A",

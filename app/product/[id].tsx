@@ -1,7 +1,9 @@
 import HugoL_angle_nobg from "@/assets/images/HugoL_angle-nobg.png";
+import { getSuulineById } from "@/src/features/suulised/api";
+import type { Suuline } from "@/src/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -18,16 +20,61 @@ const { width } = Dimensions.get("window");
 
 export default function ProductDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const productId = Array.isArray(id) ? id[0] : id;
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
   const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [suuline, setSuuline] = useState<Suuline | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  //mock data
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSuuline() {
+      if (!productId) {
+        setError("Toote ID puudub.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getSuulineById(productId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setSuuline(data);
+      } catch (e) {
+        if (!isMounted) {
+          return;
+        }
+
+        setError(
+          e instanceof Error ? e.message : "Toote laadimine ebaõnnestus.",
+        );
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadSuuline();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId]);
+
   const bitFromDatabase = {
     bit_id: 1,
     name: "Hugo",

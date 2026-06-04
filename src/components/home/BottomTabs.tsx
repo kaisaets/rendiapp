@@ -1,15 +1,40 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export function BottomTabs() {
+type BottomTabsProps = {
+  activeTab: "popular" | "all";
+  onPressPopular: () => void;
+  onPressAll: () => void;
+};
+
+export function BottomTabs({
+  activeTab,
+  onPressPopular,
+  onPressAll,
+}: BottomTabsProps) {
   return (
     <View style={styles.shell}>
-      <View style={styles.tabActive}>
-        <Text style={styles.activeLabel}>Populaarsed suulised</Text>
-      </View>
+      <Pressable
+        style={[
+          styles.tabItem,
+          activeTab === "popular" ? styles.tabActive : null,
+        ]}
+        onPress={onPressPopular}
+      >
+        <Text
+          style={activeTab === "popular" ? styles.activeLabel : styles.label}
+        >
+          Populaarsed suulised
+        </Text>
+      </Pressable>
 
-      <View style={styles.tabItem}>
-        <Text style={styles.label}>Vaata kõiki</Text>
-      </View>
+      <Pressable
+        style={[styles.tabItem, activeTab === "all" ? styles.tabActive : null]}
+        onPress={onPressAll}
+      >
+        <Text style={activeTab === "all" ? styles.activeLabel : styles.label}>
+          Vaata kõiki
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -24,15 +49,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: "hidden",
   },
-  tabActive: {
-    flex: 1,
-    height: 42,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#D2A951",
-  },
   tabItem: {
     flex: 1,
     height: 42,
@@ -40,6 +56,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+  },
+  tabActive: {
+    backgroundColor: "#D2A951",
   },
   activeLabel: {
     color: "#1F1406",
