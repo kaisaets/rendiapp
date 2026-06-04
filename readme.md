@@ -22,6 +22,23 @@ Muuda vajadusel .env väärtused:
 - MYSQL_DATABASE
 - MYSQL_USER
 - MYSQL_PASSWORD
+- REACT_NATIVE_PACKAGER_HOSTNAME — **sinu arvuti LAN IP** (vajalik telefoni testимiseks)
+
+Leia oma LAN IP:
+
+Windows PowerShell:
+```powershell
+ipconfig | Select-String "IPv4"
+```
+
+Bash/Mac:
+```bash
+ipconfig getifaddr en0
+```
+
+Näide: `REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.42`
+
+> Ilma selle muutujata töötab ainult veebibrauser. Telefoni Expo Go rakendus peab teadma sinu arvuti IP-d, et API päringud serverisse jõuaksid.
 
 ## 2) Dockeri ehitus ja käivitus
 
