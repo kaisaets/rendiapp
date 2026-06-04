@@ -56,6 +56,11 @@ Kõik andmed ja uuestikäivitamisel:
 
 ````
 
+Ainult app käivitamine
+
+```docker compose up -d --build --force-recreate app
+```docker compose logs -f app
+
 ## 3) Expo QR-koodi vaatamine
 
 Kui jooksutad detached reziimis (up -d), siis QR-kood kuvatakse logides:

@@ -1,4 +1,18 @@
 import { Kasutaja } from "../../../model/sequelize/index.js";
+import { Op } from "sequelize";
+
+function normalizeString(value, maxLen) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  return trimmed.slice(0, maxLen);
+}
 
 export async function POST(request) {
   try {
@@ -11,10 +25,11 @@ export async function POST(request) {
       telefon = null,
     } = body ?? {};
 
-    const normalizedEmail = typeof email === "string" ? email.trim() : "";
-    const normalizedClerkId = typeof clerkId === "string" ? clerkId.trim() : "";
-    const normalizedTelefon =
-      typeof telefon === "string" ? telefon.trim() || null : null;
+    const normalizedEmail = normalizeString(email, 100) || "";
+    const normalizedClerkId = normalizeString(clerkId, 100) || "";
+    const normalizedGoogleId = normalizeString(googleId, 100);
+    const normalizedNimi = normalizeString(nimi, 100);
+    const normalizedTelefon = normalizeString(telefon, 20);
 
     if (!normalizedEmail || !normalizedClerkId) {
       return Response.json(
@@ -23,16 +38,27 @@ export async function POST(request) {
       );
     }
 
-    const existingByClerk = await Kasutaja.findOne({
-      where: { clerk_id: normalizedClerkId },
+    const matchConditions = [
+      { clerk_id: normalizedClerkId },
+      { email: normalizedEmail },
+    ];
+
+    if (normalizedGoogleId) {
+      matchConditions.push({ google_id: normalizedGoogleId });
+    }
+
+    const existingUser = await Kasutaja.findOne({
+      where: {
+        [Op.or]: matchConditions,
+      },
     });
 
-    if (!existingByClerk) {
+    if (!existingUser) {
       const created = await Kasutaja.create({
         clerk_id: normalizedClerkId,
-        google_id: googleId,
+        google_id: normalizedGoogleId,
         email: normalizedEmail,
-        nimi,
+        nimi: normalizedNimi,
         telefon: normalizedTelefon,
         roll: "kasutaja",
       });
@@ -40,17 +66,24 @@ export async function POST(request) {
       return Response.json(created, { status: 201 });
     }
 
-    existingByClerk.google_id = googleId;
-    existingByClerk.email = normalizedEmail;
-    existingByClerk.nimi = nimi;
-    existingByClerk.telefon = normalizedTelefon;
+    existingUser.clerk_id = normalizedClerkId;
+    existingUser.google_id = normalizedGoogleId;
+    existingUser.email = normalizedEmail;
+    existingUser.nimi = normalizedNimi;
+    existingUser.telefon = normalizedTelefon;
     // Sisselogitud lõppkasutaja roll on alati "kasutaja".
-    existingByClerk.roll = "kasutaja";
+    existingUser.roll = "kasutaja";
 
-    await existingByClerk.save();
+    await existingUser.save();
 
-    return Response.json(existingByClerk);
+    return Response.json(existingUser);
   } catch (e) {
-    return Response.json({ error: e.message }, { status: 500 });
+    return Response.json(
+      {
+        error: e?.message || "Kasutaja sünkroniseerimine ebaõnnestus.",
+        name: e?.name || "Error",
+      },
+      { status: 500 },
+    );
   }
 }

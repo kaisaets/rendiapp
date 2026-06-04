@@ -14,13 +14,36 @@ export function AuthUserSync() {
       (account) => account.provider === "google",
     );
 
+    const normalizedEmail =
+      user.primaryEmailAddress?.emailAddress ||
+      user.emailAddresses?.[0]?.emailAddress ||
+      googleAccount?.emailAddress ||
+      "";
+
+    if (!normalizedEmail) {
+      console.error(
+        "Kasutaja sünkroniseerimine vahele jäetud: email puudub.",
+      );
+      return;
+    }
+
     void syncAuthenticatedKasutaja({
       clerk_id: user.id,
-      email: user.primaryEmailAddress?.emailAddress ?? "",
+      email: normalizedEmail,
       nimi: user.fullName || user.username || null,
       google_id: googleAccount?.providerUserId || null,
     }).catch((error) => {
-      console.error("Kasutaja sünkroniseerimine ebaõnnestus:", error);
+      const errorInfo =
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              status: (error as any).status,
+              details: (error as any).details,
+            }
+          : error;
+
+      console.error("Kasutaja sünkroniseerimine ebaõnnestus:", errorInfo);
     });
   }, [isLoaded, isSignedIn, user]);
 

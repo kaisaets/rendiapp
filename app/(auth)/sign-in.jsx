@@ -1,6 +1,6 @@
 import { useAuth, useSSO } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
-import { Redirect } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import {
@@ -15,7 +15,9 @@ import GoogleSignInButton from "../../src/components/GoogleSignInButton";
 export default function SignInScreen() {
   const { isLoaded, isSignedIn } = useAuth();
   const { startSSOFlow } = useSSO();
+  const router = useRouter();
   const [viga, setViga] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (Platform.OS !== "web") {
@@ -26,27 +28,51 @@ export default function SignInScreen() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   const handleGoogleSignIn = async () => {
-    if (isSignedIn) {
+    if (isSignedIn || isSubmitting) {
       return;
     }
 
     setViga(null);
+    setIsSubmitting(true);
     try {
       const redirectUrl =
         Platform.OS === "web"
           ? `${window.location.origin}/sign-in`
-          : AuthSession.makeRedirectUri();
-      const { createdSessionId, setActive } = await startSSOFlow({
+          : AuthSession.makeRedirectUri({
+              scheme: "rendiapp",
+              path: "oauth-native-callback",
+            });
+      const { createdSessionId, signIn, signUp, setActive } =
+        await startSSOFlow({
         strategy: "oauth_google",
         redirectUrl,
       });
-      if (createdSessionId) {
-        await setActive({ session: createdSessionId });
+      const nextSessionId =
+        createdSessionId || signIn?.createdSessionId || signUp?.createdSessionId;
+
+      if (nextSessionId) {
+        await setActive({ session: nextSessionId });
+        if (Platform.OS !== "web") {
+          await WebBrowser.dismissBrowser();
+        }
+        router.replace("/");
+      } else {
+        setViga(
+          "Sisselogimine jäi pooleli. Sulge avanenud brauser ja proovi uuesti.",
+        );
       }
     } catch (err) {
       console.error("Google login viga:", err);
       setViga("Sisselogimine ebaõnnestus. Proovi uuesti.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -70,7 +96,14 @@ export default function SignInScreen() {
           <Text style={styles.title}>Tere tulemast!</Text>
           <Text style={styles.subtitle}>Logi sisse, et jätkata</Text>
 
-          <GoogleSignInButton onPress={handleGoogleSignIn} />
+          <GoogleSignInButton
+            onPress={handleGoogleSignIn}
+            disabled={isSubmitting}
+          />
+
+          {isSubmitting ? (
+            <Text style={styles.infoTekst}>Sisselogimine käib...</Text>
+          ) : null}
 
           {viga && <Text style={styles.veaTekst}>{viga}</Text>}
         </View>
@@ -120,6 +153,12 @@ const styles = StyleSheet.create({
     color: "#c62828",
     fontSize: 14,
     marginTop: 16,
+    textAlign: "center",
+  },
+  infoTekst: {
+    color: "#D6C39B",
+    fontSize: 13,
+    marginTop: 14,
     textAlign: "center",
   },
   clerkInfo: {
