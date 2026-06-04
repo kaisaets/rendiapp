@@ -56,7 +56,6 @@ export default function ProfileScreen() {
           return;
         }
 
-        // Avoid surfacing transient background sync errors to end users.
         console.error("Profiili laadimine ebaõnnestus:", error);
       }
     }

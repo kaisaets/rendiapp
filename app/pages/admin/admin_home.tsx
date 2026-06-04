@@ -166,6 +166,18 @@ export default function AdminHome() {
         >
           <View style={styles.mainContent}>
             <Text style={styles.title}>Tere tulemast tagasi!</Text>
+
+            {/*Nupp kliendivaatesse tagasi liikumiseks */}
+            <TouchableOpacity
+              style={styles.switchButton}
+              activeOpacity={0.85}
+              onPress={() => router.push("/")}
+            >
+              <Text style={styles.switchButtonText}>
+                Vaheta kasutaja vaatesse
+              </Text>
+            </TouchableOpacity>
+
             {loadingMetrics ? (
               <Text style={styles.helperText}>Laen avalehe andmeid...</Text>
             ) : null}
@@ -217,22 +229,38 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#FFFFFF",
     fontFamily: "QuicksandBold",
-    marginBottom: 28,
-    display: "flex",
-    margin: "auto",
+    marginBottom: 20, // Vähendasin veidi, et nupp istuks ilusamalt lähedale
+    textAlign: "center",
+  },
+  // UUDED STIILID: Vaate vahetamise nupu disain
+  switchButton: {
+    backgroundColor: "#121212",
+    borderWidth: 1,
+    borderColor: "#CC9D36",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+  switchButtonText: {
+    color: "#CC9D36",
+    fontSize: 14,
+    fontWeight: "700",
+    fontFamily: "QuicksandBold",
   },
   helperText: {
     color: "#9A9A9A",
     fontSize: 13,
     fontFamily: "QuicksandRegular",
-    marginBottom: 6,
+    marginBottom: 12,
     textAlign: "center",
   },
   errorText: {
     color: "#E97A7A",
     fontSize: 13,
     fontFamily: "QuicksandRegular",
-    marginBottom: 6,
+    marginBottom: 12,
     textAlign: "center",
   },
   section: {

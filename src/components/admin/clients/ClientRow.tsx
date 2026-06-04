@@ -3,9 +3,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export function ClientRow({
   client,
+  activeCount,
   onPress,
 }: {
   client: any;
+  activeCount: number;
   onPress: () => void;
 }) {
   return (

@@ -2,17 +2,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  isAdmin?: boolean;
 }
 
 const TABS = [
@@ -46,7 +47,11 @@ const TABS = [
   },
 ];
 
-export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
+export default function Navbar({
+  activeTab,
+  setActiveTab,
+  isAdmin,
+}: NavbarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -55,15 +60,27 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
     router.push(route as any);
   };
 
+  const tabsToShow = [...TABS];
+
+  if (isAdmin) {
+    tabsToShow.push({
+      id: "admin",
+      label: "Admin",
+      iconActive: "shield-account",
+      iconInactive: "shield-account-outline",
+      route: "/pages/admin/admin_home",
+    });
+  }
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 10 }]}>
-      {TABS.map((tab) => {
+      {tabsToShow.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
           <TouchableOpacity
             key={tab.id}
             style={styles.tabButton}
-            onPress={() => handleTabPress(tab.id, tab.route)} // 4. Call the new handler
+            onPress={() => handleTabPress(tab.id, tab.route)}
             activeOpacity={0.8}
           >
             <MaterialCommunityIcons

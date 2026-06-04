@@ -1,17 +1,19 @@
+import { usePathname, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface NavbarProps {
   activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isAdmin?: boolean;
 }
 
 const TABS = [
@@ -43,15 +45,38 @@ const TABS = [
     iconInactive: "account-outline",
     route: "/pages/admin/clients",
   },
+  {
+    id: "Kasutaja",
+    label: "Kasutaja",
+    iconActive: "shield-account",
+    iconInactive: "shield-account-outline",
+    route: "/",
+  },
 ];
 
-export default function Navbar({ activeTab }: NavbarProps) {
+export default function Navbar({
+  activeTab,
+  setActiveTab,
+  isAdmin = false,
+}: NavbarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  const tabsToShow = [...TABS];
+
+  if (isAdmin) {
+    tabsToShow.push({
+      id: "admin",
+      label: "Admin",
+      iconActive: "shield-account",
+      iconInactive: "shield-account-outline",
+      route: "/pages/admin/admin_home",
+    });
+  }
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 10 }]}>
-      {TABS.map((tab) => {
+      {tabsToShow.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
           <TouchableOpacity

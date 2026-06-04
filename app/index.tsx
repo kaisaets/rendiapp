@@ -1,4 +1,4 @@
-import { useAuth } from "@clerk/expo";
+import { useAuth, useUser } from "@clerk/expo";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Navbar from "@/src/components/Navbar";
 import { BottomTabs } from "@/src/components/home/BottomTabs";
 import { HeroBanner } from "@/src/components/home/HeroBanner";
 import { ProductCard, type Product } from "@/src/components/home/ProductCard";
@@ -21,7 +20,8 @@ import { SectionHeader } from "@/src/components/home/SectionHeader";
 import { StepsSection } from "@/src/components/home/StepsSection";
 import { getSuulised } from "@/src/features/suulised/api";
 import type { Suuline } from "@/src/lib/api/types";
-
+import { syncAuthenticatedKasutaja } from "@/src/features/kasutajad/api";
+import Navbar from "@/src/components/Navbar";
 const featureSteps = ["Vali", "Proovi", "Otsusta"];
 
 const FALLBACK_IMAGES = [
@@ -52,7 +52,9 @@ function mapSuulineToProduct(suuline: Suuline, index: number): Product {
 
 export default function Index() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState("home");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [productsView, setProductsView] = useState<"popular" | "all">(
     "popular",
   );
@@ -113,6 +115,26 @@ export default function Index() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    async function loadAdmin() {
+      if (!user) return;
+
+      try {
+        const me = await syncAuthenticatedKasutaja({
+          clerk_id: user.id,
+          email: user.primaryEmailAddress?.emailAddress || "",
+          nimi: user.fullName || "",
+        });
+
+        setIsAdmin(me.roll === "admin");
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+
+    loadAdmin();
+  }, [user]);
 
   const visibleProducts =
     productsView === "all" ? products : products.slice(0, 3);
@@ -186,7 +208,11 @@ export default function Index() {
           </View>
         </Animated.View>
       </ScrollView>
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isAdmin={isAdmin}
+      />
     </SafeAreaView>
   );
 }

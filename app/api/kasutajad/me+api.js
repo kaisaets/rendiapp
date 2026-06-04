@@ -32,6 +32,18 @@ export async function GET(request) {
       return Response.json({ error: "Kasutajat ei leitud." }, { status: 404 });
     }
 
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+
+    if (
+      kasutaja.email && 
+      SUPER_ADMIN_EMAIL && // Turvakontroll
+      kasutaja.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() && 
+      kasutaja.roll !== "admin"
+    ) {
+      kasutaja.roll = "admin";
+      await kasutaja.save(); // Salvestab "admin" rolli andmebaasi kohe
+    }
+
     return Response.json(kasutaja);
   } catch (e) {
     return Response.json({ error: e.message }, { status: 500 });
@@ -63,6 +75,16 @@ export async function PATCH(request) {
 
     if (typeof telefon === "string" || telefon == null) {
       kasutaja.telefon = normalizeTelefon(telefon);
+    }
+
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    
+    if (
+      kasutaja.email &&
+      SUPER_ADMIN_EMAIL &&
+      kasutaja.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
+    ) {
+      kasutaja.roll = "admin";
     }
 
     await kasutaja.save();
