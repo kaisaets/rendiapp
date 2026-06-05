@@ -11,6 +11,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Dimensions } from "react-native";
+
+
 
 import Navbar from "@/src/components/Navbar";
 import { BottomTabs } from "@/src/components/home/BottomTabs";
@@ -28,6 +31,9 @@ const FALLBACK_IMAGES = [
   require("@/assets/images/HugoF_angle-nobg.png"),
   require("@/assets/images/HugoL_angle-nobg.png"),
 ];
+
+const { width, height } = Dimensions.get("window");
+const isSmallDevice = width < 380;
 
 function mapSuulineToProduct(suuline: Suuline, index: number): Product {
   const title = [suuline.nimi, suuline.ring_type]
@@ -206,7 +212,7 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
   mainContent: {
-    paddingHorizontal: 12,
+  paddingHorizontal: width * 0.04,
   },
   listWrap: {
     marginBottom: 18,
@@ -219,6 +225,6 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 8,
     color: "#E99292",
-    fontSize: 12,
+    fontSize: Math.max(12, width * 0.032),
   },
 });

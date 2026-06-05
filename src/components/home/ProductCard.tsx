@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconWrap: {
-    width: 110,
+    width: "100%",
     height: 110,
     minWidth: 110,
     minHeight: 110,

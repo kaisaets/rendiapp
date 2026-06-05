@@ -85,13 +85,19 @@ export default function SignInScreen() {
   }
 
   return (
-    <ImageBackground
-      source={require("../../assets/images/Hero.png")}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <View style={styles.overlay} />
-      <View style={styles.container}>
+    <View style={styles.page}>
+      <View style={styles.heroSection}>
+        <ImageBackground
+          source={require("../../assets/images/Hero.png")}
+          style={styles.heroBackground}
+          imageStyle={styles.heroImage}
+          resizeMode="cover"
+        >
+          <View style={styles.heroOverlay} />
+        </ImageBackground>
+      </View>
+
+      <View style={styles.authSection}>
         <View style={styles.contentCard}>
           <Text style={styles.title}>Tere tulemast!</Text>
           <Text style={styles.subtitle}>Logi sisse, et jätkata</Text>
@@ -109,48 +115,71 @@ export default function SignInScreen() {
         </View>
         <Text style={styles.clerkInfo}>Kasutab Clerk logimisteenust.</Text>
       </View>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
+  page: {
+    flex: 1,
+    backgroundColor: "#0A0A0A",
+  },
+  heroSection: {
+     height: 400,
+  },
+  heroBackground: {
     flex: 1,
     width: "100%",
+    justifyContent: "center",
+  },
+  heroImage: {
+    width: "100%",
     height: "100%",
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
-  overlay: {
+  heroOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    backgroundColor: "rgba(0, 0, 0, 0.18)",
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
-  container: {
+  authSection: {
     flex: 1,
-    justifyContent: "flex-end",
+    paddingHorizontal: 24,
+    justifyContent: "center",
     alignItems: "center",
-    padding: 24,
-    bottom: 40,
   },
   contentCard: {
     width: "100%",
     maxWidth: 420,
-    borderRadius: 4,
+    backgroundColor: "#141414",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
     padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
   },
   title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#f5f5f5",
+    fontSize: 28,
+    fontWeight: "700",
+    marginBottom: 10,
+    color: "#FFFFFF",
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#b5b5b5",
-    marginBottom: 20,
+    color: "#BDBDBD",
+    marginBottom: 24,
     textAlign: "center",
+    lineHeight: 22,
   },
   veaTekst: {
-    color: "#c62828",
+    color: "#F27C78",
     fontSize: 14,
     marginTop: 16,
     textAlign: "center",
@@ -162,9 +191,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   clerkInfo: {
-    marginTop: 12,
-    fontSize: 11,
-    color: "rgba(255, 255, 255, 0.9)",
+    marginTop: 18,
+    fontSize: 12,
+    color: "#A8A8A8",
     textAlign: "center",
   },
 });
