@@ -49,6 +49,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },
+      valja_ostetud: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+      },
     });
   },
 

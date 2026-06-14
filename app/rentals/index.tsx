@@ -8,12 +8,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -61,11 +61,18 @@ export default function MyRentals() {
   const [rentals, setRentals] = useState<Rentimine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const clerkId = user?.id || "";
-  const email = user?.primaryEmailAddress?.emailAddress || "";
+  const email =
+    user?.primaryEmailAddress?.emailAddress ||
+    user?.emailAddresses?.[0]?.emailAddress ||
+    "";
   const fullName = user?.fullName || user?.username || "Kasutaja";
+  const SUPER_ADMIN_EMAIL = process.env.EXPO_PUBLIC_SUPER_ADMIN_EMAIL || "";
 
+  const isAdmin = !!(
+    email &&
+    email.toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase().trim()
+  );
   useEffect(() => {
     let isMounted = true;
 
@@ -202,7 +209,11 @@ export default function MyRentals() {
         ) : null}
       </ScrollView>
 
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isAdmin={isAdmin}
+      />
     </View>
   );
 }

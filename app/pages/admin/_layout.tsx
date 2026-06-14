@@ -5,7 +5,6 @@ import { ActivityIndicator, View, StyleSheet } from "react-native";
 export default function AdminLayout() {
   const { user, isLoaded } = useUser();
 
-  // 1. Ootame, kuni Clerki kasutaja andmed on laetud
   if (!isLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -14,15 +13,28 @@ export default function AdminLayout() {
     );
   }
 
-  const isAdmin =
-    user?.primaryEmailAddress?.emailAddress === "henrik.saega@voco.ee";
+  const SUPER_ADMIN_EMAIL = process.env.EXPO_PUBLIC_SUPER_ADMIN_EMAIL;
 
-  // 3. Kui ei ole admin, suuna avalehele ("/")
+  const email =
+    user?.primaryEmailAddress?.emailAddress ||
+    user?.emailAddresses?.[0]?.emailAddress;
+
+  const isAdmin =
+    email &&
+    SUPER_ADMIN_EMAIL &&
+    email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+
+    console.log("EMAIL:", email);
+    console.log("ENV:", SUPER_ADMIN_EMAIL);
+    console.log("ISADMIN CHECK:", isAdmin);
   if (!isAdmin) {
-    return <Redirect href="/" />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator />
+      </View>
+    );
   }
 
-  // 4. Kui on admin, luba ligipääs admin alamvaadetele
   return <Stack screenOptions={{ headerShown: false }} />;
 }
 

@@ -67,7 +67,7 @@ export async function POST(request) {
         email: normalizedEmail,
         nimi: normalizedNimi,
         telefon: normalizedTelefon,
-        roll: määratudRoll, // Õige roll uuele kasutajale
+        roll: määratudRoll,
       });
 
       return Response.json(created, { status: 201 });
@@ -78,8 +78,6 @@ export async function POST(request) {
     existingUser.email = normalizedEmail;
     existingUser.nimi = normalizedNimi;
     existingUser.telefon = normalizedTelefon;
-    
-    // Õige roll olemasolevale kasutajale (ei kirjuta enam "kasutajaks" üle)
     existingUser.roll = määratudRoll;
 
     await existingUser.save();

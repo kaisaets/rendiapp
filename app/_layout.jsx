@@ -17,7 +17,7 @@ const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function RootLayout() {
   const pathname = usePathname();
-  const isAdminRoute = pathname?.startsWith("/pages/admin");
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   const [fontsLoaded] = useFonts({
     QuicksandRegular: require("../assets/fonts/Quicksand-Regular.ttf"),
@@ -55,7 +55,6 @@ export default function RootLayout() {
       <ClerkLoaded>
         <Stack screenOptions={{ headerShown: false }} />
         <AuthUserSync />
-        {isAdminRoute ? <AdminMetadataLauncher /> : null}
       </ClerkLoaded>
     </ClerkProvider>
   );

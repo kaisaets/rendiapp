@@ -26,9 +26,17 @@ export default function ProfileScreen() {
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const fullName = user?.fullName || user?.username || "Kasutaja";
-  const email = user?.primaryEmailAddress?.emailAddress || "";
+  const email =
+    user?.primaryEmailAddress?.emailAddress ||
+    user?.emailAddresses?.[0]?.emailAddress ||
+    "";
+  const SUPER_ADMIN_EMAIL = process.env.EXPO_PUBLIC_SUPER_ADMIN_EMAIL;
   const displayEmail = email || "Email puudub";
   const clerkId = user?.id || "";
+  const isAdmin = !!(
+    email &&
+    email.toLowerCase().trim() === SUPER_ADMIN_EMAIL?.toLowerCase().trim()
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -196,7 +204,11 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isAdmin={isAdmin}
+      />
 
       {isSigningOut ? (
         <View style={styles.signOutOverlay}>
